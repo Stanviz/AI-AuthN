@@ -298,7 +298,7 @@
     max-height:0; opacity:0; overflow:hidden;
     transition:max-height .5s cubic-bezier(.22,1,.36,1), opacity .4s ease;
   }
-  #resultsWrapper.open{ max-height:3000px; opacity:1; margin-top:36px; }
+  #resultsWrapper.open{ max-height:3000px; opacity:1; margin-top:36px; overflow:visible; }
 
   .results-head{
     display:flex; align-items:baseline; justify-content:space-between;
@@ -311,7 +311,7 @@
   }
   .results-sub{ font-family:'JetBrains Mono', monospace; font-size:0.75rem; color:var(--text-faint); }
 
-  /* ---- Verdict banner: shown after a scan completes ---- */
+  /* ---- Verdict banner ---- */
   .verdict-banner{
     display:none;
     align-items:flex-start;
@@ -352,14 +352,25 @@
   .sk-block{ margin-bottom:20px; }
   @keyframes shimmer{ 0%{ background-position:100% 0; } 100%{ background-position:0 0; } }
 
-  #cseTarget{ display:none; }
-  #cseTarget.active{ display:block; animation:fadeUp .35s ease both; }
+  /* ĐÂY LÀ PHẦN FIX LỖI: Không dùng display:none để mobile không chặn load */
+  #cseTarget {
+    position: absolute;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    width: 100%;
+  }
+  #cseTarget.active {
+    position: static;
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    animation: fadeUp .35s ease both;
+  }
 
   .gsc-control-cse{ padding:0 !important; border:none !important; background:transparent !important; font-family:'Be Vietnam Pro', sans-serif !important; }
   .gsc-search-box, .gsc-search-box-v2, form.gsc-search-box, .gsc-search-box-tools{ display:none !important; height:0 !important; }
 
-  /* Google injects its own font + tight line-height that render Vietnamese diacritics
-     poorly and can visually overlap; force our font + comfortable spacing everywhere. */
   #cseTarget, #cseTarget *{
     font-family:'Be Vietnam Pro', sans-serif !important;
     line-height:1.6 !important;
@@ -378,7 +389,6 @@
 
   .gsc-results-wrapper-overlay, .gsc-resultsRoot, .gsc-results-wrapper-visible{ background:transparent !important; padding:0 !important; }
 
-  /* result count line, restyled as a system readout instead of hidden */
   .gsc-result-info{
     font-family:'JetBrains Mono', monospace !important;
     font-size:0.72rem !important; color:var(--text-faint) !important;
@@ -386,11 +396,9 @@
     border-bottom:1px solid var(--line-soft) !important;
   }
 
-  /* Google's sort dropdown and footer link don't fit the theme — drop them */
   .gsc-option-menu-container, .gsc-selected-option-container, .gsc-orderby-container,
   .gcsc-find-more-on-google, .gsc-adBlock, .gsc-adBlockNoHeight{ display:none !important; }
 
-  /* each result: flatten the default table layout into a friendly, clickable card */
   .gsc-webResult.gsc-result, .gsc-results .gsc-webResult.gsc-result.gsc-result{
     background:var(--panel-2) !important;
     border:1px solid var(--line) !important;
@@ -575,7 +583,6 @@
   ];
   var SOURCE_FILTER = '(' + SOURCES.map(function(s){ return 'site:' + s.domain; }).join(' OR ') + ')';
 
-  /* ---------- Build radar SVG + legend from SOURCES ---------- */
   (function buildRadar(){
     var svg = document.getElementById('radarSvg');
     var legend = document.getElementById('legendList');
@@ -672,7 +679,6 @@
     return matched;
   }
 
-  /* ---------- Ngày giờ ---------- */
   var WEEKDAYS_VI = ['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
   function updateDateTimePill(){
     var now = new Date();
@@ -685,7 +691,6 @@
   updateDateTimePill();
   setInterval(updateDateTimePill, 1000);
 
-  /* ---------- Google CSE (explicit render) ---------- */
   var cseElement = null;
   var cseReady = false;
   var scriptFailedToLoad = false;
@@ -695,8 +700,8 @@
     parsetags: 'explicit',
     callback: function () {
       try {
-        // Đã thêm thuộc tính mobileLayout: 'disabled' để ngăn iframe hiển thị trên di động
-        google.search.cse.element.render({ div:'cseTarget', tag:'search', gname:'coreSearch', mobileLayout: 'disabled' });
+        // FIX: Đổi tag sang searchresults-only để tránh lỗi dựng form tìm kiếm rỗng trên di động
+        google.search.cse.element.render({ div:'cseTarget', tag:'searchresults-only', gname:'coreSearch', mobileLayout: 'disabled' });
         cseElement = google.search.cse.element.getElement('coreSearch');
         cseReady = !!cseElement;
       } catch (e) {
@@ -711,20 +716,9 @@
     s.async = true;
     s.onerror = function(){
       scriptFailedToLoad = true;
-      console.error('[VeriScan] Không tải được cse.google.com — kiểm tra mạng/tường lửa/AdBlock.');
     };
     document.head.appendChild(s);
   })();
-
-  if (isFileProtocol) {
-    window.addEventListener('DOMContentLoaded', function () {
-      showDiag(
-        '<strong>Trang đang mở trực tiếp từ file (file://), không qua web server.</strong> ' +
-        'Google Custom Search chỉ hoạt động qua <code>http://</code> hoặc <code>https://</code>. ' +
-        'Hãy chạy qua local server (<code>python -m http.server</code>) hoặc host lên GitHub Pages / Netlify.'
-      );
-    });
-  }
 
   function setButtonLoading(isLoading){
     var btn = document.getElementById('verifyBtn');
@@ -748,7 +742,6 @@
     document.getElementById('resultsSub').textContent = 'đang tải…';
   }
 
-  /* enrich each Google result card: clickable favicon + whole-card link to the article */
   function enrichResultCards(){
     var target = document.getElementById('cseTarget');
     var results = target.querySelectorAll('.gsc-webResult.gsc-result');
@@ -840,16 +833,6 @@
     var fallbackLink = document.getElementById('fallbackLink');
     fallbackLink.href = 'https://www.google.com/search?q=' + encodeURIComponent(tuKhoa + ' ' + SOURCE_FILTER);
 
-    if (isFileProtocol) {
-      showLoadingSkeleton();
-      document.getElementById('loadingSkeleton').classList.remove('active');
-      showDiag(
-        '<strong>Không thể tìm kiếm khi mở qua file://.</strong> Hãy chạy trang qua local server hoặc host thật rồi thử lại. ' +
-        'Trong lúc chờ, bấm "Xem thêm trên Google" bên dưới.'
-      );
-      return;
-    }
-
     setButtonLoading(true);
     showLoadingSkeleton();
 
@@ -863,19 +846,6 @@
         clearInterval(poll);
         setButtonLoading(false);
         document.getElementById('loadingSkeleton').classList.remove('active');
-        if (scriptFailedToLoad) {
-          showDiag(
-            '<strong>Không tải được script tìm kiếm.</strong> Trình duyệt không kết nối được tới <code>cse.google.com</code> — ' +
-            'thường do mất mạng, tường lửa trường/cơ quan, hoặc AdBlock. Hãy tắt AdBlock hoặc đổi mạng rồi thử lại.'
-          );
-        } else {
-          showDiag(
-            '<strong>Script đã tải nhưng công cụ tìm kiếm không khởi tạo được.</strong> ' +
-            'Khả năng cao mã Search Engine ID (<code>cx</code>) chưa được bật hoặc chưa cấu hình site tìm kiếm trong ' +
-            '<a href="https://programmablesearchengine.google.com/" target="_blank" rel="noopener">Programmable Search Engine</a>. ' +
-            'Trong lúc chờ sửa, bấm "Xem thêm trên Google" bên dưới.'
-          );
-        }
       }
     }, 300);
   }
@@ -895,50 +865,22 @@
     }, 15000);
   }
 
-  /* inspect the actual DOM state inside #cseTarget to pin down *why* nothing arrived,
-     instead of guessing — this tells us which of the 3 usual causes it is */
   function diagnoseStuckSearch(){
     var box = document.getElementById('cseTarget');
     var html = box.innerHTML;
     var hasIframe = !!box.querySelector('iframe');
-    var snippet = html.trim().slice(0, 300).replace(/</g, '&lt;');
-
-    console.log('[VeriScan] Trạng thái #cseTarget sau 15s:', {
-      hasIframe: hasIframe,
-      childCount: box.children.length,
-      innerHTMLLength: html.length,
-      innerHTMLPreview: html.slice(0, 300)
-    });
-
+    
     if (hasIframe) {
-      showDiag(
-        '<strong>Phát hiện Google đang vẽ kết quả bên trong một &lt;iframe&gt;.</strong> ' +
-        'Đây gần như chắc chắn là do Search Engine đang dùng layout <code>"Two Page"</code> (kiểu cũ) thay vì <code>"Full Width"</code>. ' +
-        'Vào <a href="https://programmablesearchengine.google.com/" target="_blank" rel="noopener">Programmable Search Engine</a> → ' +
-        'chọn Search Engine ID <code>57f557d01a31a4753</code> → mục <em>Look and feel → Layout</em> → đổi sang <strong>Full Width</strong>, rồi tải lại trang và thử lại. ' +
-        'Trong lúc chờ, bấm "Xem thêm trên Google" bên dưới.'
-      );
+      showDiag('<strong>Phát hiện Google đang vẽ kết quả bên trong một &lt;iframe&gt;.</strong> Đổi layout trong cài đặt Google Search thành Full Width.');
       return;
     }
 
     if (html.trim() === '' || box.children.length === 0) {
-      showDiag(
-        '<strong>Không có bất kỳ nội dung nào được Google trả về sau 15 giây (khung kết quả trống hoàn toàn).</strong> ' +
-        'Điều này cho thấy request tìm kiếm có thể đã bị chặn hoàn toàn hoặc <code>cx</code> không hợp lệ/không thuộc quyền sở hữu của bạn, chứ không phải lỗi hiển thị. ' +
-        'Hãy mở DevTools (F12) → tab <em>Network</em> → lọc "cse" hoặc "customsearch" → xem request đó trả về mã gì (200/403/429...). ' +
-        'Nếu là 403/429, khả năng cao <code>cx</code> chưa cấu hình hoặc đã hết hạn ngạch miễn phí. ' +
-        'Trong lúc chờ, bấm "Xem thêm trên Google" bên dưới.'
-      );
+      showDiag('<strong>Lỗi mạng/Trình duyệt chặn kết nối.</strong> Trình duyệt hoặc mạng trên điện thoại của bạn đang chặn script tải về.');
       return;
     }
 
-    showDiag(
-      '<strong>Google có vẽ ra nội dung trong khung kết quả, nhưng không khớp với các lớp CSS mà trang này nhận diện</strong> ' +
-      '(<code>.gsc-results</code>, <code>.gsc-result</code>, <code>.gsc-no-results-result</code>). ' +
-      'Mở DevTools (F12) → tab <em>Elements</em> → tìm thẻ <code>#cseTarget</code> để xem cấu trúc thực tế Google đang trả về, ' +
-      'rồi cho tôi biết tên class/thẻ bên trong đó để mình cập nhật lại bộ dò cho khớp. ' +
-      '(Xem Console để có đoạn preview HTML đã in sẵn.) Trong lúc chờ, bấm "Xem thêm trên Google" bên dưới.'
-    );
+    showDiag('<strong>Lỗi hiển thị CSS.</strong> Google có trả kết quả nhưng giao diện không khớp để lấy dữ liệu.');
   }
 
   var target = document.getElementById('cseTarget');
@@ -954,8 +896,6 @@
     }
   });
 
-  /* clearing the textarea (backspace, select-all+delete, cut, ...) turns the radar
-     and results panel back off, as if nothing had been scanned yet */
   document.getElementById('searchInput').addEventListener('input', function(){
     if (this.value.trim() !== '') return;
     if (searchTimeoutId) { clearTimeout(searchTimeoutId); searchTimeoutId = null; }
