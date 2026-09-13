@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đối chiếu thông tin AI với báo chí Việt Nam</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+  :root{
+    --bg:#0a0d12;
+    --panel:#10151d;
+    --panel-2:#161f29;
+    --line:#232d3a;
+    --line-soft:#1a2229;
+    --text:#e9eef3;
+    --text-dim:#8595a6;
+    --text-faint:#576270;
+    --amber:#ffb020;
+    --amber-dim:#5c4419;
+    --green:#33d17a;
+    --green-dim:#173c2a;
+    --red:#ff4d5e;
+    --red-dim:#4a1e23;
+    --cyan:#5ec8f5;
+  }
+
+  *{ box-sizing:border-box; }
+  ::selection{ background:var(--cyan); color:#04202c; }
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Be Vietnam Pro', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .wrap{ max-width:1180px; margin:0 auto; padding:0 24px 90px; }
+
+  a{ color:var(--cyan); }
+
+  /* ---------------- Top bar ---------------- */
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:18px 0;
+    border-bottom:1px solid var(--line);
+    margin-bottom:56px;
+    flex-wrap:wrap;
+  }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand-mark{
+    width:32px; height:32px;
+    border-radius:9px;
+    background:linear-gradient(160deg, var(--cyan), #2f7fb0);
+    box-shadow:0 3px 10px rgba(94,200,245,0.25);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono', monospace;
+    font-weight:600; font-size:0.85rem; color:#04202c;
+    flex-shrink:0;
+  }
+  .brand-name{
+    font-family:'Space Grotesk','Be Vietnam Pro',sans-serif;
+    font-weight:600; font-size:1.05rem; letter-spacing:-0.01em;
+  }
+  .brand-sub{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.72rem; color:var(--text-faint);
+  }
+
+  .topbar-right{ display:flex; align-items:center; gap:22px; }
+
+  .datetime-pill{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:6px 14px;
+    border-radius:20px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.78rem;
+    border:1px solid var(--line);
+    color:var(--text-dim);
+  }
+  .datetime-date{ color:var(--text-dim); }
+  .datetime-sep{ color:var(--text-faint); }
+  .datetime-time{ color:var(--cyan); font-weight:600; }
+
+  /* ---------------- Hero ---------------- */
+  .hero{ position:relative; padding:6px 0 46px; margin-bottom:16px; }
+  .hero-tag{
+    font-size:0.85rem; color:var(--text-dim); margin:0 0 14px;
+  }
+  .hero-tag b{ color:var(--cyan); font-weight:600; }
+  h1{
+    font-family:'Space Grotesk','Be Vietnam Pro',sans-serif;
+    font-weight:600;
+    font-size:clamp(2rem, 4.4vw, 3.05rem);
+    line-height:1.1;
+    letter-spacing:-0.015em;
+    margin:0 0 16px;
+    max-width:18ch;
+    position:relative; z-index:1;
+  }
+  .hero p.lede{
+    font-size:1.06rem;
+    color:var(--text-dim);
+    max-width:56ch;
+    line-height:1.6;
+    margin:0;
+    position:relative; z-index:1;
+  }
+  .hero-wave{
+    position:absolute;
+    right:-40px; top:-10px;
+    width:min(560px, 60%);
+    height:180px;
+    opacity:0.55;
+    pointer-events:none;
+  }
+  .hero-wave path{ stroke:var(--cyan); }
+  .wave-anim{ stroke-dasharray:6 5; animation:waveFlow 3.6s linear infinite; }
+  @media (prefers-reduced-motion: reduce){ .wave-anim{ animation:none; } }
+  @keyframes waveFlow{ to{ stroke-dashoffset:-220; } }
+  @media (max-width: 760px){ .hero-wave{ display:none; } }
+
+  /* ---------------- Main grid ---------------- */
+  .grid{
+    display:grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap:28px;
+    align-items:stretch;
+  }
+  @media (max-width: 900px){ .grid{ grid-template-columns:1fr; } }
+
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:26px;
+    display:flex;
+    flex-direction:column;
+    box-shadow:0 1px 0 rgba(255,255,255,0.02) inset, 0 10px 30px rgba(0,0,0,0.18);
+    transition:border-color .25s ease;
+  }
+  .panel:focus-within, .panel:hover{ border-color:#2b3646; }
+  .panel-title{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.75rem;
+    color:var(--text-faint);
+    margin:0 0 18px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .panel-title::before{ content:'//'; color:var(--text-faint); }
+
+  /* ---- Console ---- */
+  .console{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:13px;
+    overflow:hidden;
+    margin-bottom:16px;
+    transition:border-color .2s ease, box-shadow .2s ease;
+  }
+  .console:focus-within{ border-color:var(--cyan); box-shadow:0 0 0 3px rgba(94,200,245,0.12); }
+  .console-bar{
+    display:flex; align-items:center; gap:8px;
+    padding:10px 14px;
+    border-bottom:1px solid var(--line);
+    background:#0d1219;
+  }
+  .console-dot{ width:9px; height:9px; border-radius:50%; }
+  .console-dot.d1{ background:#ff5f57; }
+  .console-dot.d2{ background:#febc2e; }
+  .console-dot.d3{ background:#28c840; }
+  .console-title{
+    margin-left:8px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.74rem;
+    color:var(--text-faint);
+  }
+  .console-body{ display:flex; gap:10px; padding:16px; }
+  .console-prompt{
+    font-family:'JetBrains Mono', monospace;
+    color:var(--cyan);
+    font-size:0.95rem;
+    padding-top:2px;
+    flex-shrink:0;
+  }
+  #searchInput{
+    flex:1;
+    resize:vertical;
+    min-height:96px;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:var(--text);
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.92rem;
+    line-height:1.55;
+  }
+  #searchInput::placeholder{ color:var(--text-faint); }
+
+  .btn-verify{
+    align-self:flex-start;
+    border:none;
+    border-radius:10px;
+    padding:13px 26px;
+    background:var(--cyan);
+    color:#04202c;
+    font-family:'JetBrains Mono', monospace;
+    font-weight:600;
+    font-size:0.88rem;
+    cursor:pointer;
+    display:flex; align-items:center; gap:10px;
+    box-shadow:0 4px 16px rgba(94,200,245,0.22);
+    transition:filter .15s ease, transform .15s ease, box-shadow .15s ease;
+  }
+  .btn-verify:hover{ filter:brightness(1.08); transform:translateY(-1px); box-shadow:0 6px 20px rgba(94,200,245,0.3); }
+  .btn-verify:active{ transform:translateY(1px); box-shadow:0 2px 10px rgba(94,200,245,0.22); }
+  .btn-verify:disabled{ opacity:0.6; cursor:progress; }
+  .btn-verify:focus-visible{ outline:2px solid var(--cyan); outline-offset:3px; }
+
+  .spinner-ring{
+    width:14px; height:14px;
+    border:2px solid rgba(4,32,44,0.3);
+    border-top-color:#04202c;
+    border-radius:50%;
+    animation:spin .7s linear infinite;
+    display:inline-block;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  .status-line{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.78rem;
+    color:var(--text-faint);
+    margin:14px 0 0;
+  }
+
+  /* ---- Radar / network panel ---- */
+  #radarSvg{ width:100%; height:auto; display:block; margin-bottom:8px; }
+  .radar-node circle{ fill:var(--panel-2); stroke:var(--line); stroke-width:1.5; transition:fill .3s ease, stroke .3s ease; }
+  .radar-node text{ fill:var(--text-dim); font-family:'JetBrains Mono', monospace; font-size:10px; font-weight:600; transition:fill .3s ease; }
+  .radar-node.matched circle{ fill:var(--green-dim); stroke:var(--green); }
+  .radar-node.matched text{ fill:var(--green); }
+  .radar-line{ stroke:var(--line); stroke-width:1.5; transition:stroke .35s ease, stroke-width .35s ease; }
+  .radar-line.matched{ stroke:var(--green); stroke-width:2; }
+  .radar-center circle{ fill:var(--panel-2); stroke:var(--cyan); stroke-width:1.8; }
+  .radar-center text{ fill:var(--cyan); font-family:'JetBrains Mono', monospace; font-size:11px; font-weight:600; }
+  .radar-center.scanning circle{ animation:centerPulse 1.1s ease-in-out infinite; }
+  @keyframes centerPulse{ 0%,100%{ stroke-width:1.8; } 50%{ stroke-width:3.4; } }
+
+  .legend{
+    list-style:none; margin:6px 0 0; padding:0;
+    display:grid; grid-template-columns:1fr 1fr; gap:6px 14px;
+  }
+  .legend li{
+    display:flex; align-items:center; gap:8px;
+    font-size:0.82rem; color:var(--text-dim);
+    padding:5px 0;
+    border-bottom:1px solid var(--line-soft);
+    transition:color .25s ease;
+  }
+  .legend-dot{ width:7px; height:7px; border-radius:50%; background:var(--text-faint); flex-shrink:0; transition:background .25s ease; }
+  .legend li.matched{ color:var(--green); }
+  .legend li.matched .legend-dot{ background:var(--green); }
+
+  .match-count{
+    margin-top:16px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.8rem;
+    color:var(--text-faint);
+  }
+  .match-count.done{ color:var(--green); }
+
+  /* ---------------- Diagnostics ---------------- */
+  .diag-banner{
+    display:none;
+    border-radius:10px;
+    padding:14px 16px;
+    font-size:0.85rem;
+    line-height:1.55;
+    margin-top:16px;
+    border:1px solid var(--red-dim);
+    background:rgba(255,77,94,0.08);
+    color:#ffb3ba;
+  }
+  .diag-banner.show{ display:block; animation:fadeUp .3s ease both; }
+  .diag-banner code{ background:#1a0f10; padding:1px 5px; border-radius:4px; color:#ffd9dc; }
+  @keyframes fadeUp{ from{ opacity:0; transform:translateY(6px); } to{ opacity:1; transform:translateY(0); } }
+
+  /* ---------------- Results ---------------- */
+  #resultsWrapper{
+    max-height:0; opacity:0; overflow:hidden;
+    transition:max-height .5s cubic-bezier(.22,1,.36,1), opacity .4s ease;
+  }
+  #resultsWrapper.open{ max-height:3000px; opacity:1; margin-top:36px; }
+
+  .results-head{
+    display:flex; align-items:baseline; justify-content:space-between;
+    padding-bottom:14px; border-bottom:1px solid var(--line);
+    margin-bottom:20px;
+  }
+  .results-title{
+    font-family:'Space Grotesk','Be Vietnam Pro',sans-serif;
+    font-size:1.2rem; font-weight:600; margin:0;
+  }
+  .results-sub{ font-family:'JetBrains Mono', monospace; font-size:0.75rem; color:var(--text-faint); }
+
+  /* ---- Verdict banner: shown after a scan completes ---- */
+  .verdict-banner{
+    display:none;
+    align-items:flex-start;
+    gap:12px;
+    border-radius:12px;
+    padding:16px 18px;
+    margin-bottom:22px;
+    font-size:0.9rem;
+    line-height:1.6;
+  }
+  .verdict-banner.show{ display:flex; animation:fadeUp .3s ease both; }
+  .verdict-icon{ font-size:1.15rem; line-height:1.5; flex-shrink:0; }
+  .verdict-banner strong{ display:block; margin-bottom:3px; font-size:0.95rem; }
+  .verdict-banner.verified{
+    border:1px solid rgba(51,209,122,0.35);
+    background:rgba(51,209,122,0.08);
+    color:#bdf0d1;
+  }
+  .verdict-banner.verified strong{ color:var(--green); }
+  .verdict-banner.unverified{
+    border:1px solid rgba(255,176,32,0.4);
+    background:rgba(255,176,32,0.08);
+    color:#ffe1ad;
+  }
+  .verdict-banner.unverified strong{ color:var(--amber); }
+
+  #loadingSkeleton{ display:none; }
+  #loadingSkeleton.active{ display:block; animation:fadeUp .3s ease both; }
+  .sk-line{
+    height:12px; border-radius:6px; margin-bottom:10px;
+    background:linear-gradient(90deg, var(--panel-2) 25%, #1e2732 37%, var(--panel-2) 63%);
+    background-size:400% 100%;
+    animation:shimmer 1.3s ease infinite;
+  }
+  .sk-line.w1{ width:88%; height:16px; }
+  .sk-line.w2{ width:60%; }
+  .sk-line.w3{ width:74%; }
+  .sk-block{ margin-bottom:20px; }
+  @keyframes shimmer{ 0%{ background-position:100% 0; } 100%{ background-position:0 0; } }
+
+  #cseTarget{ display:none; }
+  #cseTarget.active{ display:block; animation:fadeUp .35s ease both; }
+
+  .gsc-control-cse{ padding:0 !important; border:none !important; background:transparent !important; font-family:'Be Vietnam Pro', sans-serif !important; }
+  .gsc-search-box, .gsc-search-box-v2, form.gsc-search-box, .gsc-search-box-tools{ display:none !important; height:0 !important; }
+
+  /* Google injects its own font + tight line-height that render Vietnamese diacritics
+     poorly and can visually overlap; force our font + comfortable spacing everywhere. */
+  #cseTarget, #cseTarget *{
+    font-family:'Be Vietnam Pro', sans-serif !important;
+    line-height:1.6 !important;
+    letter-spacing:normal !important;
+    word-spacing:normal !important;
+    -webkit-font-smoothing:antialiased !important;
+  }
+  #cseTarget .gs-title,
+  #cseTarget .gs-snippet,
+  #cseTarget .gs-visibleUrl,
+  #cseTarget .gsc-url-top{
+    word-wrap:break-word !important;
+    overflow-wrap:break-word !important;
+    white-space:normal !important;
+  }
+
+  .gsc-results-wrapper-overlay, .gsc-resultsRoot, .gsc-results-wrapper-visible{ background:transparent !important; padding:0 !important; }
+
+  /* result count line, restyled as a system readout instead of hidden */
+  .gsc-result-info{
+    font-family:'JetBrains Mono', monospace !important;
+    font-size:0.72rem !important; color:var(--text-faint) !important;
+    padding:0 0 16px !important; margin:0 !important;
+    border-bottom:1px solid var(--line-soft) !important;
+  }
+
+  /* Google's sort dropdown and footer link don't fit the theme — drop them */
+  .gsc-option-menu-container, .gsc-selected-option-container, .gsc-orderby-container,
+  .gcsc-find-more-on-google, .gsc-adBlock, .gsc-adBlockNoHeight{ display:none !important; }
+
+  /* each result: flatten the default table layout into a friendly, clickable card */
+  .gsc-webResult.gsc-result, .gsc-results .gsc-webResult.gsc-result.gsc-result{
+    background:var(--panel-2) !important;
+    border:1px solid var(--line) !important;
+    border-radius:12px !important;
+    padding:16px 18px !important; margin:0 0 14px !important;
+    transition:border-color .18s ease, transform .18s ease, box-shadow .18s ease;
+  }
+  .gsc-result:last-child{ margin-bottom:0 !important; }
+
+  .gsc-card-clickable{ cursor:pointer !important; }
+  .gsc-card-clickable:hover{
+    border-color:var(--cyan) !important;
+    transform:translateY(-2px);
+    box-shadow:0 10px 24px rgba(0,0,0,0.28) !important;
+  }
+
+  .gsc-table-result{ display:block !important; width:100% !important; }
+  .gsc-table-result tbody, .gsc-table-result tr{ display:block !important; }
+  .gsc-table-result td{ display:block !important; width:100% !important; padding:0 !important; }
+  .gsc-thumbnail-inside, .gsc-thumbnail, .gs-image-box, .gs-promotion-image-box{ display:none !important; }
+
+  .gs-title, .gs-title *{
+    color:var(--cyan) !important; font-weight:600 !important; text-decoration:none !important;
+    font-size:1.02rem !important; line-height:1.5 !important;
+    display:inline !important;
+  }
+  .gs-title{ display:block !important; }
+  .gs-title:hover, .gs-title:hover *{ text-decoration:underline !important; }
+
+  .gsc-url-top{
+    margin:8px 0 8px !important;
+    display:flex !important; align-items:center !important; gap:7px !important;
+  }
+  .gs-visibleUrl, .gs-bidi-start-align.gs-visibleUrl{
+    color:var(--text-faint) !important; font-family:'JetBrains Mono', monospace !important;
+    font-size:0.76rem !important;
+  }
+  .gsc-favicon{ width:14px; height:14px; border-radius:3px; flex-shrink:0; }
+
+  .gsc-badge{
+    display:inline-block;
+    margin-left:10px;
+    padding:2px 9px;
+    border-radius:20px;
+    background:var(--green-dim);
+    border:1px solid rgba(51,209,122,0.35);
+    color:var(--green);
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.68rem;
+    font-weight:600;
+    vertical-align:middle;
+    white-space:nowrap;
+  }
+
+  .gs-snippet{ color:var(--text-dim) !important; font-size:0.92rem !important; line-height:1.65 !important; margin:6px 0 0 !important; display:block !important; }
+
+  .gsc-cursor-box{ text-align:left !important; margin-top:8px !important; }
+  .gsc-cursor-page{
+    font-family:'JetBrains Mono', monospace !important; font-size:0.8rem !important;
+    color:var(--text-dim) !important; padding:4px 10px !important; margin:0 4px 0 0 !important;
+    border-radius:6px !important;
+  }
+  .gsc-cursor-page:hover{ color:var(--cyan) !important; text-decoration:none !important; background:var(--panel-2) !important; }
+  .gsc-cursor-current-page{ color:var(--cyan) !important; font-weight:600 !important; }
+
+  .fallback-row{ margin-top:22px; text-align:right; }
+  .fallback-link{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.8rem; color:var(--text-dim);
+    text-decoration:none;
+    border-bottom:1px solid var(--line);
+    padding-bottom:2px;
+    transition:color .15s ease, border-color .15s ease;
+  }
+  .fallback-link:hover{ color:var(--cyan); border-color:var(--cyan); }
+
+  footer{
+    margin-top:64px; padding-top:18px;
+    border-top:1px solid var(--line);
+    font-size:0.78rem; color:var(--text-faint);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;
+  }
+  footer span:last-child{ font-family:'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">AA</div>
+      <div>
+        <div class="brand-name">AI-AuthN</div>
+        <div class="brand-sub"></div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span class="datetime-pill" id="datetimePill">
+        <span class="datetime-date" id="datetimeDate">—</span>
+        <span class="datetime-sep">·</span>
+        <span class="datetime-time" id="datetimeTime">00:00:00</span>
+      </span>
+    </div>
+  </div>
+
+  <div class="hero">
+    <svg class="hero-wave" viewBox="0 0 400 180" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M0,90 C40,40 70,140 110,90 C150,40 180,140 220,90 C260,40 290,140 330,90 C350,65 370,65 400,90"
+            fill="none" stroke-width="2" class="wave-anim"/>
+      <path d="M0,110 C40,150 70,70 110,110 C150,150 180,70 220,110 C260,150 290,70 330,110 C350,130 370,130 400,110"
+            fill="none" stroke-width="1.4" opacity="0.5"/>
+    </svg>
+    <p class="hero-tag">Dự án Khoa học Kỹ thuật &nbsp;·&nbsp; chống <b>ảo giác AI</b> bằng đối chiếu báo chí</p>
+    <h1>Quét và đối chiếu nội dung AI với báo chí chính thống Việt Nam</h1>
+    <p class="lede">Dán một câu trả lời của AI vào bên dưới. Hệ thống sẽ đối chiếu trực tiếp với 8 cơ quan báo chí được cấp phép và cho biết nguồn nào thực sự đề cập đến nội dung đó.</p>
+  </div>
+
+  <div class="grid">
+
+    <section class="panel">
+      <p class="panel-title">nhập nội dung cần kiểm chứng</p>
+      <div class="console">
+        <div class="console-bar">
+          <span class="console-dot d1"></span><span class="console-dot d2"></span><span class="console-dot d3"></span>
+          <span class="console-title"></span>
+        </div>
+        <div class="console-body">
+          <span class="console-prompt">›</span>
+          <textarea id="searchInput" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="Nội dung"></textarea>
+        </div>
+      </div>
+      <button class="btn-verify" type="button" id="verifyBtn" onclick="thucHienKiemChung()">
+        <span id="verifyBtnLabel">▶ Kiểm chứng</span>
+      </button>
+      <p class="status-line" id="statusLine">trạng thái: chờ nhập nội dung</p>
+
+      <div id="diagBanner" class="diag-banner"></div>
+    </section>
+
+    <section class="panel">
+      <p class="panel-title">nguồn đối chiếu</p>
+      <svg id="radarSvg" viewBox="0 0 700 210" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
+      <ul class="legend" id="legendList"></ul>
+      <p class="match-count" id="matchCount">chưa quét</p>
+    </section>
+
+  </div>
+
+  <div id="resultsWrapper">
+    <div class="results-head">
+      <h2 class="results-title">Kết quả đối chiếu</h2>
+      <span class="results-sub" id="resultsSub">—</span>
+    </div>
+
+    <div id="verdictBanner" class="verdict-banner"></div>
+
+    <div id="loadingSkeleton">
+      <div class="sk-block"><div class="sk-line w1"></div><div class="sk-line w2"></div><div class="sk-line w3"></div></div>
+      <div class="sk-block"><div class="sk-line w1"></div><div class="sk-line w2"></div></div>
+    </div>
+
+    <div id="cseTarget"></div>
+
+    <div class="fallback-row">
+      <a id="fallbackLink" href="#" target="_blank" rel="noopener" class="fallback-link">Xem thêm trên Google →</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  var SOURCES = [
+    { domain:'baochinhphu.vn',   short:'CP',  name:'Báo Chính Phủ' },
+    { domain:'nhandan.vn',       short:'ND',  name:'Nhân Dân' },
+    { domain:'vtv.vn',           short:'VTV', name:'VTV' },
+    { domain:'vnexpress.net',    short:'VNE', name:'VnExpress' },
+    { domain:'tuoitre.vn',       short:'TT',  name:'Tuổi Trẻ' },
+    { domain:'thanhnien.vn',     short:'TN',  name:'Thanh Niên' },
+    { domain:'vietnamnet.vn',    short:'VNN', name:'VietnamNet' },
+    { domain:'dantri.com.vn',    short:'DT',  name:'Dân Trí' }
+  ];
+  var SOURCE_FILTER = '(' + SOURCES.map(function(s){ return 'site:' + s.domain; }).join(' OR ') + ')';
+
+  /* ---------- Build radar SVG + legend from SOURCES ---------- */
+  (function buildRadar(){
+    var svg = document.getElementById('radarSvg');
+    var legend = document.getElementById('legendList');
+    var ns = 'http://www.w3.org/2000/svg';
+    var cx = 350, cy = 34, cr = 26;
+    var rowY = 172, nodeR = 22;
+    var n = SOURCES.length;
+    var xStart = 50, xEnd = 650;
+    var step = (xEnd - xStart) / (n - 1);
+
+    function el(tag, attrs){
+      var e = document.createElementNS(ns, tag);
+      for (var k in attrs) e.setAttribute(k, attrs[k]);
+      return e;
+    }
+
+    SOURCES.forEach(function(s, i){
+      var x = xStart + i * step;
+      var line = el('line', { id:'line-'+i, class:'radar-line', x1:cx, y1:cy+cr, x2:x, y2:rowY-nodeR });
+      svg.appendChild(line);
+    });
+
+    var centerG = el('g', { class:'radar-center', id:'centerNode' });
+    centerG.appendChild(el('circle', { cx:cx, cy:cy, r:cr }));
+    var centerText = el('text', { x:cx, y:cy+4, 'text-anchor':'middle' });
+    centerText.textContent = 'AI';
+    centerG.appendChild(centerText);
+    svg.appendChild(centerG);
+
+    SOURCES.forEach(function(s, i){
+      var x = xStart + i * step;
+      var g = el('g', { class:'radar-node', id:'node-'+i });
+      g.appendChild(el('circle', { cx:x, cy:rowY, r:nodeR }));
+      var t = el('text', { x:x, y:rowY+4, 'text-anchor':'middle' });
+      t.textContent = s.short;
+      g.appendChild(t);
+      var titleEl = el('title', {});
+      titleEl.textContent = s.name;
+      g.appendChild(titleEl);
+      svg.appendChild(g);
+
+      var li = document.createElement('li');
+      li.id = 'legend-' + i;
+      li.innerHTML = '<span class="legend-dot"></span>' + s.name;
+      legend.appendChild(li);
+    });
+  })();
+
+  function resetRadar(){
+    SOURCES.forEach(function(s, i){
+      document.getElementById('node-'+i).classList.remove('matched');
+      document.getElementById('line-'+i).classList.remove('matched');
+      document.getElementById('legend-'+i).classList.remove('matched');
+    });
+    document.getElementById('centerNode').classList.remove('scanning');
+    var mc = document.getElementById('matchCount');
+    mc.textContent = 'chưa quét';
+    mc.classList.remove('done');
+    var vb = document.getElementById('verdictBanner');
+    vb.classList.remove('show', 'verified', 'unverified');
+    vb.innerHTML = '';
+  }
+
+  function setScanning(){
+    document.getElementById('centerNode').classList.add('scanning');
+    document.getElementById('matchCount').textContent = 'đang quét…';
+  }
+
+  function applyMatches(matchedSet){
+    document.getElementById('centerNode').classList.remove('scanning');
+    SOURCES.forEach(function(s, i){
+      if (matchedSet.has(s.domain)) {
+        document.getElementById('node-'+i).classList.add('matched');
+        document.getElementById('line-'+i).classList.add('matched');
+        document.getElementById('legend-'+i).classList.add('matched');
+      }
+    });
+    var mc = document.getElementById('matchCount');
+    mc.textContent = matchedSet.size + '/' + SOURCES.length + ' nguồn khớp';
+    mc.classList.add('done');
+  }
+
+  function detectMatchedSources(){
+    var matched = new Set();
+    var target = document.getElementById('cseTarget');
+    var anchors = target.querySelectorAll('a[href]');
+    anchors.forEach(function(a){
+      var host = '';
+      try { host = new URL(a.href).hostname.replace(/^www\./, ''); } catch (e) { return; }
+      SOURCES.forEach(function(s){
+        if (host === s.domain || host.endsWith('.' + s.domain)) matched.add(s.domain);
+      });
+    });
+    return matched;
+  }
+
+  /* ---------- Ngày giờ ---------- */
+  var WEEKDAYS_VI = ['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
+  function updateDateTimePill(){
+    var now = new Date();
+    var dd = String(now.getDate()).padStart(2, '0');
+    var mm = String(now.getMonth() + 1).padStart(2, '0');
+    var yyyy = now.getFullYear();
+    document.getElementById('datetimeDate').textContent = WEEKDAYS_VI[now.getDay()] + ', ' + dd + '/' + mm + '/' + yyyy;
+    document.getElementById('datetimeTime').textContent = now.toLocaleTimeString('vi-VN', { hour12:false });
+  }
+  updateDateTimePill();
+  setInterval(updateDateTimePill, 1000);
+
+  /* ---------- Google CSE (explicit render) ---------- */
+  var cseElement = null;
+  var cseReady = false;
+  var scriptFailedToLoad = false;
+  var isFileProtocol = (window.location.protocol === 'file:');
+
+  window.__gcse = {
+    parsetags: 'explicit',
+    callback: function () {
+      try {
+        google.search.cse.element.render({ div:'cseTarget', tag:'search', gname:'coreSearch' });
+        cseElement = google.search.cse.element.getElement('coreSearch');
+        cseReady = !!cseElement;
+      } catch (e) {
+        console.error('[VeriScan] Lỗi khi render CSE:', e);
+      }
+    }
+  };
+
+  (function loadCseScript(){
+    var s = document.createElement('script');
+    s.src = 'https://cse.google.com/cse.js?cx=57f557d01a31a4753';
+    s.async = true;
+    s.onerror = function(){
+      scriptFailedToLoad = true;
+      console.error('[VeriScan] Không tải được cse.google.com — kiểm tra mạng/tường lửa/AdBlock.');
+    };
+    document.head.appendChild(s);
+  })();
+
+  if (isFileProtocol) {
+    window.addEventListener('DOMContentLoaded', function () {
+      showDiag(
+        '<strong>Trang đang mở trực tiếp từ file (file://), không qua web server.</strong> ' +
+        'Google Custom Search chỉ hoạt động qua <code>http://</code> hoặc <code>https://</code>. ' +
+        'Hãy chạy qua local server (<code>python -m http.server</code>) hoặc host lên GitHub Pages / Netlify.'
+      );
+    });
+  }
+
+  function setButtonLoading(isLoading){
+    var btn = document.getElementById('verifyBtn');
+    var label = document.getElementById('verifyBtnLabel');
+    btn.disabled = isLoading;
+    label.innerHTML = isLoading ? '<span class="spinner-ring"></span> Đang quét…' : '▶ Kiểm chứng';
+  }
+
+  function showDiag(html){
+    var el = document.getElementById('diagBanner');
+    el.innerHTML = html;
+    el.classList.add('show');
+  }
+  function hideDiag(){ document.getElementById('diagBanner').classList.remove('show'); }
+
+  function openResults(){ document.getElementById('resultsWrapper').classList.add('open'); }
+
+  function showLoadingSkeleton(){
+    document.getElementById('loadingSkeleton').classList.add('active');
+    document.getElementById('cseTarget').classList.remove('active');
+    document.getElementById('resultsSub').textContent = 'đang tải…';
+  }
+
+  /* enrich each Google result card: clickable favicon + whole-card link to the article */
+  function enrichResultCards(){
+    var target = document.getElementById('cseTarget');
+    var results = target.querySelectorAll('.gsc-webResult.gsc-result');
+    results.forEach(function(card){
+      if (card.dataset.enriched) return;
+      var titleLink = card.querySelector('.gs-title a, a.gs-title');
+      if (!titleLink || !titleLink.href) return;
+      card.dataset.enriched = '1';
+
+      var host = '';
+      try { host = new URL(titleLink.href).hostname.replace(/^www\./, ''); } catch (e) {}
+
+      var isOfficial = SOURCES.some(function(s){ return host === s.domain || host.endsWith('.' + s.domain); });
+
+      var favicon = document.createElement('img');
+      favicon.className = 'gsc-favicon';
+      favicon.src = 'https://www.google.com/s2/favicons?sz=64&domain=' + encodeURIComponent(host);
+      favicon.alt = '';
+      var urlLine = card.querySelector('.gsc-url-top, .gs-visibleUrl');
+      if (urlLine) urlLine.insertAdjacentElement('afterbegin', favicon);
+
+      if (isOfficial) {
+        var badge = document.createElement('span');
+        badge.className = 'gsc-badge';
+        badge.textContent = '✓ nguồn chính thống';
+        var titleWrap = card.querySelector('.gs-title')?.parentElement;
+        if (titleWrap) titleWrap.appendChild(badge);
+      }
+
+      card.classList.add('gsc-card-clickable');
+      card.addEventListener('click', function(evt){
+        if (evt.target.closest('a')) return;
+        window.open(titleLink.href, '_blank', 'noopener');
+      });
+    });
+  }
+
+  function showVerdict(matched){
+    var vb = document.getElementById('verdictBanner');
+    if (matched.size === 0) {
+      vb.className = 'verdict-banner show unverified';
+      vb.innerHTML =
+        '<span class="verdict-icon">⚠</span>' +
+        '<span><strong>Nội dung chưa được xác thực</strong>' +
+        'Không có nguồn báo chí chính thống nào trong danh sách đối chiếu đề cập đến nội dung này. ' +
+        'Đây có thể là thông tin sai lệch, bị AI "ảo giác", hoặc đơn giản là chưa được báo chí đưa tin — hãy thận trọng trước khi tin và chia sẻ.</span>';
+    } else {
+      vb.className = 'verdict-banner show verified';
+      vb.innerHTML =
+        '<span class="verdict-icon">✓</span>' +
+        '<span><strong>Đã tìm thấy nguồn đối chiếu</strong>' +
+        matched.size + '/' + SOURCES.length + ' cơ quan báo chí chính thống có bài viết liên quan đến nội dung này. ' +
+        'Bấm vào kết quả bên dưới để đọc trực tiếp và tự đối chiếu chi tiết.</span>';
+    }
+  }
+
+  function showCseResults(){
+    if (searchTimeoutId) { clearTimeout(searchTimeoutId); searchTimeoutId = null; }
+    document.getElementById('loadingSkeleton').classList.remove('active');
+    document.getElementById('cseTarget').classList.add('active');
+    setButtonLoading(false);
+    enrichResultCards();
+    var matched = detectMatchedSources();
+    applyMatches(matched);
+    showVerdict(matched);
+    document.getElementById('resultsSub').textContent = matched.size + '/' + SOURCES.length + ' nguồn khớp';
+    document.getElementById('statusLine').textContent = 'trạng thái: hoàn tất — ' + matched.size + '/' + SOURCES.length + ' nguồn khớp';
+  }
+
+  function thucHienKiemChung(){
+    var tuKhoa = document.getElementById('searchInput').value.trim();
+
+    if (tuKhoa === '') {
+      Swal.fire({
+        icon:'warning', title:'Thiếu nội dung',
+        text:'Vui lòng dán nội dung cần kiểm chứng trước khi tiếp tục.',
+        background:'#10151d', color:'#e9eef3', confirmButtonColor:'#5ec8f5'
+      });
+      return;
+    }
+
+    if (searchTimeoutId) { clearTimeout(searchTimeoutId); searchTimeoutId = null; }
+    hideDiag();
+    resetRadar();
+    openResults();
+    document.getElementById('statusLine').textContent = 'trạng thái: đang quét ' + SOURCES.length + ' nguồn…';
+    setScanning();
+
+    var fallbackLink = document.getElementById('fallbackLink');
+    fallbackLink.href = 'https://www.google.com/search?q=' + encodeURIComponent(tuKhoa + ' ' + SOURCE_FILTER);
+
+    if (isFileProtocol) {
+      showLoadingSkeleton();
+      document.getElementById('loadingSkeleton').classList.remove('active');
+      showDiag(
+        '<strong>Không thể tìm kiếm khi mở qua file://.</strong> Hãy chạy trang qua local server hoặc host thật rồi thử lại. ' +
+        'Trong lúc chờ, bấm "Xem thêm trên Google" bên dưới.'
+      );
+      return;
+    }
+
+    setButtonLoading(true);
+    showLoadingSkeleton();
+
+    if (cseReady && cseElement) { runSearch(tuKhoa); return; }
+
+    var tries = 0, maxTries = 30;
+    var poll = setInterval(function(){
+      tries++;
+      if (cseReady && cseElement) { clearInterval(poll); runSearch(tuKhoa); return; }
+      if (tries >= maxTries) {
+        clearInterval(poll);
+        setButtonLoading(false);
+        document.getElementById('loadingSkeleton').classList.remove('active');
+        if (scriptFailedToLoad) {
+          showDiag(
+            '<strong>Không tải được script tìm kiếm.</strong> Trình duyệt không kết nối được tới <code>cse.google.com</code> — ' +
+            'thường do mất mạng, tường lửa trường/cơ quan, hoặc AdBlock. Hãy tắt AdBlock hoặc đổi mạng rồi thử lại.'
+          );
+        } else {
+          showDiag(
+            '<strong>Script đã tải nhưng công cụ tìm kiếm không khởi tạo được.</strong> ' +
+            'Khả năng cao mã Search Engine ID (<code>cx</code>) chưa được bật hoặc chưa cấu hình site tìm kiếm trong ' +
+            '<a href="https://programmablesearchengine.google.com/" target="_blank" rel="noopener">Programmable Search Engine</a>. ' +
+            'Trong lúc chờ sửa, bấm "Xem thêm trên Google" bên dưới.'
+          );
+        }
+      }
+    }, 300);
+  }
+
+  var searchTimeoutId = null;
+
+  function runSearch(query){
+    showLoadingSkeleton();
+    cseElement.execute(query);
+
+    if (searchTimeoutId) clearTimeout(searchTimeoutId);
+    searchTimeoutId = setTimeout(function(){
+      searchTimeoutId = null;
+      document.getElementById('loadingSkeleton').classList.remove('active');
+      setButtonLoading(false);
+      diagnoseStuckSearch();
+    }, 15000);
+  }
+
+  /* inspect the actual DOM state inside #cseTarget to pin down *why* nothing arrived,
+     instead of guessing — this tells us which of the 3 usual causes it is */
+  function diagnoseStuckSearch(){
+    var box = document.getElementById('cseTarget');
+    var html = box.innerHTML;
+    var hasIframe = !!box.querySelector('iframe');
+    var snippet = html.trim().slice(0, 300).replace(/</g, '&lt;');
+
+    console.log('[VeriScan] Trạng thái #cseTarget sau 15s:', {
+      hasIframe: hasIframe,
+      childCount: box.children.length,
+      innerHTMLLength: html.length,
+      innerHTMLPreview: html.slice(0, 300)
+    });
+
+    if (hasIframe) {
+      showDiag(
+        '<strong>Phát hiện Google đang vẽ kết quả bên trong một &lt;iframe&gt;.</strong> ' +
+        'Đây gần như chắc chắn là do Search Engine đang dùng layout <code>"Two Page"</code> (kiểu cũ) thay vì <code>"Full Width"</code>. ' +
+        'Vào <a href="https://programmablesearchengine.google.com/" target="_blank" rel="noopener">Programmable Search Engine</a> → ' +
+        'chọn Search Engine ID <code>57f557d01a31a4753</code> → mục <em>Look and feel → Layout</em> → đổi sang <strong>Full Width</strong>, rồi tải lại trang và thử lại. ' +
+        'Trong lúc chờ, bấm "Xem thêm trên Google" bên dưới.'
+      );
+      return;
+    }
+
+    if (html.trim() === '' || box.children.length === 0) {
+      showDiag(
+        '<strong>Không có bất kỳ nội dung nào được Google trả về sau 15 giây (khung kết quả trống hoàn toàn).</strong> ' +
+        'Điều này cho thấy request tìm kiếm có thể đã bị chặn hoàn toàn hoặc <code>cx</code> không hợp lệ/không thuộc quyền sở hữu của bạn, chứ không phải lỗi hiển thị. ' +
+        'Hãy mở DevTools (F12) → tab <em>Network</em> → lọc "cse" hoặc "customsearch" → xem request đó trả về mã gì (200/403/429...). ' +
+        'Nếu là 403/429, khả năng cao <code>cx</code> chưa cấu hình hoặc đã hết hạn ngạch miễn phí. ' +
+        'Trong lúc chờ, bấm "Xem thêm trên Google" bên dưới.'
+      );
+      return;
+    }
+
+    showDiag(
+      '<strong>Google có vẽ ra nội dung trong khung kết quả, nhưng không khớp với các lớp CSS mà trang này nhận diện</strong> ' +
+      '(<code>.gsc-results</code>, <code>.gsc-result</code>, <code>.gsc-no-results-result</code>). ' +
+      'Mở DevTools (F12) → tab <em>Elements</em> → tìm thẻ <code>#cseTarget</code> để xem cấu trúc thực tế Google đang trả về, ' +
+      'rồi cho tôi biết tên class/thẻ bên trong đó để mình cập nhật lại bộ dò cho khớp. ' +
+      '(Xem Console để có đoạn preview HTML đã in sẵn.) Trong lúc chờ, bấm "Xem thêm trên Google" bên dưới.'
+    );
+  }
+
+  var target = document.getElementById('cseTarget');
+  var observer = new MutationObserver(function(){
+    if (target.querySelector('.gsc-results, .gsc-result, .gsc-no-results-result')) showCseResults();
+  });
+  observer.observe(target, { childList:true, subtree:true });
+
+  document.getElementById('searchInput').addEventListener('keydown', function(event){
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      thucHienKiemChung();
+    }
+  });
+
+  /* clearing the textarea (backspace, select-all+delete, cut, ...) turns the radar
+     and results panel back off, as if nothing had been scanned yet */
+  document.getElementById('searchInput').addEventListener('input', function(){
+    if (this.value.trim() !== '') return;
+    if (searchTimeoutId) { clearTimeout(searchTimeoutId); searchTimeoutId = null; }
+    resetRadar();
+    hideDiag();
+    document.getElementById('resultsWrapper').classList.remove('open');
+    document.getElementById('cseTarget').classList.remove('active');
+    document.getElementById('loadingSkeleton').classList.remove('active');
+    setButtonLoading(false);
+    document.getElementById('statusLine').textContent = 'trạng thái: chờ nhập nội dung';
+  });
+</script>
+
+</body>
+</html>
