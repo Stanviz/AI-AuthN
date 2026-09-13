@@ -695,7 +695,8 @@
     parsetags: 'explicit',
     callback: function () {
       try {
-        google.search.cse.element.render({ div:'cseTarget', tag:'search', gname:'coreSearch' });
+        // Đã thêm thuộc tính mobileLayout: 'disabled' để ngăn iframe hiển thị trên di động
+        google.search.cse.element.render({ div:'cseTarget', tag:'search', gname:'coreSearch', mobileLayout: 'disabled' });
         cseElement = google.search.cse.element.getElement('coreSearch');
         cseReady = !!cseElement;
       } catch (e) {
