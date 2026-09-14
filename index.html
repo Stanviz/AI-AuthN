@@ -43,6 +43,13 @@
 
   a{ color:var(--cyan); }
 
+  :focus-visible{ outline:2px solid var(--cyan); outline-offset:2px; }
+
+  .sr-only{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+
   /* ---------------- Top bar ---------------- */
   .topbar{
     display:flex;
@@ -108,7 +115,7 @@
   .hero p.lede{
     font-size:1.06rem;
     color:var(--text-dim);
-    max-width:56ch;
+    max-width:60ch;
     line-height:1.6;
     margin:0;
     position:relative; z-index:1;
@@ -204,25 +211,34 @@
   }
   #searchInput::placeholder{ color:var(--text-faint); }
 
-  .btn-verify{
-    align-self:flex-start;
+  .btn-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+
+  .btn-verify, .btn-secondary{
     border:none;
     border-radius:10px;
     padding:13px 26px;
-    background:var(--cyan);
-    color:#04202c;
     font-family:'JetBrains Mono', monospace;
     font-weight:600;
     font-size:0.88rem;
     cursor:pointer;
     display:flex; align-items:center; gap:10px;
-    box-shadow:0 4px 16px rgba(94,200,245,0.22);
     transition:filter .15s ease, transform .15s ease, box-shadow .15s ease;
+  }
+  .btn-verify{
+    background:var(--cyan);
+    color:#04202c;
+    box-shadow:0 4px 16px rgba(94,200,245,0.22);
   }
   .btn-verify:hover{ filter:brightness(1.08); transform:translateY(-1px); box-shadow:0 6px 20px rgba(94,200,245,0.3); }
   .btn-verify:active{ transform:translateY(1px); box-shadow:0 2px 10px rgba(94,200,245,0.22); }
-  .btn-verify:disabled{ opacity:0.6; cursor:progress; }
-  .btn-verify:focus-visible{ outline:2px solid var(--cyan); outline-offset:3px; }
+  .btn-verify:disabled, .btn-secondary:disabled{ opacity:0.5; cursor:progress; }
+
+  .btn-secondary{
+    background:transparent;
+    color:var(--text-dim);
+    border:1px solid var(--line);
+  }
+  .btn-secondary:hover{ color:var(--cyan); border-color:var(--cyan); }
 
   .spinner-ring{
     width:14px; height:14px;
@@ -232,6 +248,7 @@
     animation:spin .7s linear infinite;
     display:inline-block;
   }
+  .spinner-ring.dim{ border-color:rgba(94,200,245,0.25); border-top-color:var(--cyan); }
   @keyframes spin{ to{ transform:rotate(360deg); } }
 
   .status-line{
@@ -277,6 +294,33 @@
   }
   .match-count.done{ color:var(--green); }
 
+  /* ---------------- Method / limitations note grid ---------------- */
+  .note-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:28px;
+    margin-top:28px;
+  }
+  @media (max-width: 900px){ .note-grid{ grid-template-columns:1fr; } }
+  .note-panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:24px 26px;
+  }
+  .note-panel h3{
+    font-family:'Space Grotesk','Be Vietnam Pro',sans-serif;
+    font-size:1rem; font-weight:600; margin:0 0 12px;
+    display:flex; align-items:center; gap:9px;
+  }
+  .note-panel h3 .dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .note-panel.limits h3 .dot{ background:var(--amber); }
+  .note-panel.method h3 .dot{ background:var(--cyan); }
+  .note-panel p{ font-size:0.9rem; line-height:1.65; color:var(--text-dim); margin:0 0 10px; }
+  .note-panel p:last-child{ margin-bottom:0; }
+  .note-panel ul{ margin:0 0 10px; padding-left:20px; }
+  .note-panel li{ font-size:0.9rem; line-height:1.65; color:var(--text-dim); margin-bottom:6px; }
+
   /* ---------------- Diagnostics ---------------- */
   .diag-banner{
     display:none;
@@ -298,7 +342,7 @@
     max-height:0; opacity:0; overflow:hidden;
     transition:max-height .5s cubic-bezier(.22,1,.36,1), opacity .4s ease;
   }
-  #resultsWrapper.open{ max-height:3000px; opacity:1; margin-top:36px; }
+  #resultsWrapper.open{ max-height:8000px; opacity:1; margin-top:36px; }
 
   .results-head{
     display:flex; align-items:baseline; justify-content:space-between;
@@ -337,6 +381,57 @@
     color:#ffe1ad;
   }
   .verdict-banner.unverified strong{ color:var(--amber); }
+
+  /* ---- Claims panel (sentence-level breakdown) ---- */
+  #claimsPanel{ display:none; margin-bottom:26px; }
+  #claimsPanel.show{ display:block; animation:fadeUp .3s ease both; }
+  .claims-head{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    flex-wrap:wrap; margin-bottom:12px;
+  }
+  .claims-head h3{
+    font-family:'Space Grotesk','Be Vietnam Pro',sans-serif;
+    font-size:0.98rem; font-weight:600; margin:0;
+  }
+  .claims-note{ font-size:0.78rem; color:var(--text-faint); margin:0 0 14px; line-height:1.55; }
+  .claim-list{ list-style:none; margin:0; padding:0; }
+  .claim-item{
+    display:flex; align-items:flex-start; gap:12px;
+    padding:12px 14px;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:11px;
+    margin-bottom:10px;
+  }
+  .claim-status{
+    flex-shrink:0; width:26px; height:26px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono', monospace; font-size:0.72rem; font-weight:600;
+    background:var(--panel); border:1px solid var(--line); color:var(--text-faint);
+    margin-top:1px;
+  }
+  .claim-status.ok{ background:var(--green-dim); border-color:var(--green); color:var(--green); }
+  .claim-status.none{ background:var(--amber-dim); border-color:var(--amber); color:var(--amber); }
+  .claim-status.err{ background:var(--red-dim); border-color:var(--red-dim); color:#ffb3ba; }
+  .claim-status.busy{ background:var(--panel); border-color:var(--cyan); }
+  .claim-text{ flex:1; font-size:0.87rem; line-height:1.55; color:var(--text); }
+  .claim-meta{ font-family:'JetBrains Mono', monospace; font-size:0.72rem; color:var(--text-faint); margin-top:4px; }
+  .claim-check-btn{
+    flex-shrink:0;
+    background:transparent; border:1px solid var(--line); color:var(--text-dim);
+    font-family:'JetBrains Mono', monospace; font-size:0.72rem;
+    padding:7px 12px; border-radius:8px; cursor:pointer;
+    transition:color .15s ease, border-color .15s ease;
+    white-space:nowrap;
+  }
+  .claim-check-btn:hover{ color:var(--cyan); border-color:var(--cyan); }
+  .claim-check-btn:disabled{ opacity:0.4; cursor:default; }
+
+  .batch-summary{
+    font-family:'JetBrains Mono', monospace; font-size:0.78rem; color:var(--text-faint);
+    margin-top:6px;
+  }
+  .batch-summary.done{ color:var(--green); }
 
   #loadingSkeleton{ display:none; }
   #loadingSkeleton.active{ display:block; animation:fadeUp .3s ease both; }
@@ -446,6 +541,7 @@
   }
 
   .gs-snippet{ color:var(--text-dim) !important; font-size:0.92rem !important; line-height:1.65 !important; margin:6px 0 0 !important; display:block !important; }
+  .gs-snippet mark{ background:rgba(94,200,245,0.22) !important; color:var(--text) !important; border-radius:3px; padding:0 2px; }
 
   .gsc-cursor-box{ text-align:left !important; margin-top:8px !important; }
   .gsc-cursor-page{
@@ -506,38 +602,66 @@
     </svg>
     <p class="hero-tag">Dự án Khoa học Kỹ thuật &nbsp;·&nbsp; chống <b>ảo giác AI</b> bằng đối chiếu báo chí</p>
     <h1>Quét và đối chiếu nội dung AI với báo chí chính thống Việt Nam</h1>
-    <p class="lede">Dán một câu trả lời của AI vào bên dưới. Hệ thống sẽ đối chiếu trực tiếp với 8 cơ quan báo chí được cấp phép và cho biết nguồn nào thực sự đề cập đến nội dung đó.</p>
+    <p class="lede">Dán một câu trả lời của AI vào bên dưới. Hệ thống đối chiếu trực tiếp với 8 cơ quan báo chí được cấp phép, tách nội dung thành từng câu riêng để kiểm tra chi tiết hơn, và cho biết nguồn nào thực sự đề cập đến nội dung đó — cùng với những giới hạn của cách kiểm tra này.</p>
   </div>
 
   <div class="grid">
 
     <section class="panel">
-      <p class="panel-title">nhập nội dung cần kiểm chứng</p>
+      <p class="panel-title" id="inputPanelTitle">nhập nội dung cần kiểm chứng</p>
       <div class="console">
         <div class="console-bar">
           <span class="console-dot d1"></span><span class="console-dot d2"></span><span class="console-dot d3"></span>
           <span class="console-title"></span>
         </div>
         <div class="console-body">
-          <span class="console-prompt">›</span>
-          <textarea id="searchInput" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="Nội dung"></textarea>
+          <span class="console-prompt" aria-hidden="true">›</span>
+          <textarea id="searchInput" aria-labelledby="inputPanelTitle" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="Nội dung"></textarea>
         </div>
       </div>
-      <button class="btn-verify" type="button" id="verifyBtn" onclick="thucHienKiemChung()">
-        <span id="verifyBtnLabel">▶ Kiểm chứng</span>
-      </button>
-      <p class="status-line" id="statusLine">trạng thái: chờ nhập nội dung</p>
+      <div class="btn-row">
+        <button class="btn-verify" type="button" id="verifyBtn" onclick="thucHienKiemChung()">
+          <span id="verifyBtnLabel">▶ Kiểm chứng</span>
+        </button>
+        <button class="btn-secondary" type="button" id="batchBtn" onclick="checkAllClaims()">
+          <span id="batchBtnLabel">⛭ Kiểm tra từng câu</span>
+        </button>
+      </div>
+      <p class="status-line" id="statusLine" role="status" aria-live="polite">trạng thái: chờ nhập nội dung</p>
 
-      <div id="diagBanner" class="diag-banner"></div>
+      <div id="diagBanner" class="diag-banner" role="alert"></div>
     </section>
 
     <section class="panel">
       <p class="panel-title">nguồn đối chiếu</p>
       <svg id="radarSvg" viewBox="0 0 700 210" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
       <ul class="legend" id="legendList"></ul>
-      <p class="match-count" id="matchCount">chưa quét</p>
+      <p class="match-count" id="matchCount" role="status" aria-live="polite">chưa quét</p>
     </section>
 
+  </div>
+
+  <div class="note-grid">
+    <section class="note-panel method">
+      <h3><span class="dot" aria-hidden="true"></span>Vì sao chọn 8 nguồn này?</h3>
+      <p>Danh sách đối chiếu gồm các cơ quan báo chí được Bộ Thông tin và Truyền thông cấp phép hoạt động báo điện tử, được chọn theo ba tiêu chí:</p>
+      <ul>
+        <li>Đại diện cho nhiều loại hình: báo của Chính phủ / cơ quan trung ương (Báo Chính phủ, Nhân Dân, VTV), báo tổng hợp lượng truy cập lớn (VnExpress, Dân Trí, VietnamNet), và báo của tổ chức xã hội (Tuổi Trẻ, Thanh Niên).</li>
+        <li>Có quy trình biên tập và kiểm chứng thông tin trước khi đăng, khác với mạng xã hội hay các trang không rõ nguồn gốc.</li>
+        <li>Đủ phổ biến để phần lớn các sự kiện, chính sách quan trọng ở Việt Nam sẽ được ít nhất một trong 8 nguồn này đưa tin nếu là thật.</li>
+      </ul>
+      <p>Danh sách này không đầy đủ và có thể mở rộng — đây là lựa chọn có chủ đích để giữ phạm vi kiểm tra gọn và dễ giải thích trong khuôn khổ đề tài.</p>
+    </section>
+    <section class="note-panel limits">
+      <h3><span class="dot" aria-hidden="true"></span>Giới hạn của công cụ</h3>
+      <p>Công cụ này kiểm tra <strong>sự trùng khớp từ khóa</strong> giữa nội dung AI và kết quả tìm kiếm Google giới hạn trong 8 domain trên — đây <strong>không phải</strong> là kiểm chứng ngữ nghĩa đầy đủ.</p>
+      <ul>
+        <li>Một domain xuất hiện trong kết quả tìm kiếm không đảm bảo bài báo đó nói đúng điều AI vừa nêu — có thể chỉ trùng từ khóa.</li>
+        <li>Một câu đúng nhưng diễn đạt khác cách báo chí viết có thể không được tìm thấy (không có nghĩa là sai).</li>
+        <li>Công cụ không tự đọc và so sánh nội dung — người dùng vẫn cần bấm vào bài báo để tự đối chiếu.</li>
+      </ul>
+      <p>Vì vậy kết quả nên được hiểu là <em>gợi ý để tra cứu thêm</em>, không phải phán quyết đúng/sai cuối cùng.</p>
+    </section>
   </div>
 
   <div id="resultsWrapper">
@@ -547,6 +671,15 @@
     </div>
 
     <div id="verdictBanner" class="verdict-banner"></div>
+
+    <div id="claimsPanel">
+      <div class="claims-head">
+        <h3>Tách theo từng câu / luận điểm</h3>
+      </div>
+      <p class="claims-note">Mỗi câu trong nội dung được tách riêng để có thể kiểm tra độc lập, thay vì gộp chung thành một kết luận duy nhất. Bấm "kiểm tra" ở từng câu, hoặc bấm "Kiểm tra từng câu" phía trên để quét lần lượt tự động.</p>
+      <ul class="claim-list" id="claimList"></ul>
+      <p class="batch-summary" id="batchSummary"></p>
+    </div>
 
     <div id="loadingSkeleton">
       <div class="sk-block"><div class="sk-line w1"></div><div class="sk-line w2"></div><div class="sk-line w3"></div></div>
@@ -559,6 +692,11 @@
       <a id="fallbackLink" href="#" target="_blank" rel="noopener" class="fallback-link">Xem thêm trên Google →</a>
     </div>
   </div>
+
+  <footer>
+    <span>AI-AuthN — Dự án Khoa học Kỹ thuật</span>
+    <span id="footerNote">công cụ hỗ trợ, không thay thế việc tự kiểm chứng</span>
+  </footer>
 
 </div>
 
@@ -574,6 +712,13 @@
     { domain:'dantri.com.vn',    short:'DT',  name:'Dân Trí' }
   ];
   var SOURCE_FILTER = '(' + SOURCES.map(function(s){ return 'site:' + s.domain; }).join(' OR ') + ')';
+
+  /* max number of sentences auto-processed in "kiểm tra từng câu" mode, and a
+     pause between each query — both exist to avoid burning through Programmable
+     Search Engine's free daily quota (100 queries/day) too quickly during a demo */
+  var MAX_CLAIMS = 8;
+  var BATCH_DELAY_MS = 900;
+  var SEARCH_TIMEOUT_MS = 15000;
 
   /* ---------- Build radar SVG + legend from SOURCES ---------- */
   (function buildRadar(){
@@ -637,6 +782,11 @@
     var vb = document.getElementById('verdictBanner');
     vb.classList.remove('show', 'verified', 'unverified');
     vb.innerHTML = '';
+    var cp = document.getElementById('claimsPanel');
+    cp.classList.remove('show');
+    document.getElementById('claimList').innerHTML = '';
+    document.getElementById('batchSummary').textContent = '';
+    document.getElementById('batchSummary').classList.remove('done');
   }
 
   function setScanning(){
@@ -685,11 +835,74 @@
   updateDateTimePill();
   setInterval(updateDateTimePill, 1000);
 
+  /* ---------- Tách câu / luận điểm ---------- */
+  function splitIntoClaims(text){
+    var raw = text
+      .replace(/\r\n/g, '\n')
+      .split(/\n+/)
+      .join(' ');
+    // split right after . ? ! followed by whitespace and an uppercase/quote/digit start —
+    // this avoids most false splits on things like "20.000" or "TP.HCM" (no space follows).
+    var pieces = raw.split(/(?<=[\.\?!])\s+(?=[A-ZÀ-Ỹ"“0-9])/);
+    var seen = {};
+    var claims = [];
+    pieces.forEach(function(p){
+      var t = p.trim();
+      if (t.length < 18) return; // too short to be a meaningful standalone claim
+      if (seen[t]) return;
+      seen[t] = true;
+      claims.push(t);
+    });
+    if (claims.length === 0 && text.trim().length > 0) claims.push(text.trim());
+    return claims.slice(0, MAX_CLAIMS);
+  }
+
+  function renderClaimsPanel(claims){
+    var list = document.getElementById('claimList');
+    list.innerHTML = '';
+    claims.forEach(function(claim, i){
+      var li = document.createElement('li');
+      li.className = 'claim-item';
+      li.id = 'claim-' + i;
+      li.innerHTML =
+        '<span class="claim-status" id="claim-status-' + i + '">' + (i + 1) + '</span>' +
+        '<div style="flex:1">' +
+          '<div class="claim-text">' + escapeHtml(claim) + '</div>' +
+          '<div class="claim-meta" id="claim-meta-' + i + '"></div>' +
+        '</div>' +
+        '<button type="button" class="claim-check-btn" id="claim-btn-' + i + '">kiểm tra</button>';
+      list.appendChild(li);
+      document.getElementById('claim-btn-' + i).addEventListener('click', function(){
+        checkSingleClaim(claim);
+      });
+    });
+    document.getElementById('claimsPanel').classList.add('show');
+  }
+
+  function escapeHtml(s){
+    return s.replace(/[&<>"']/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+    });
+  }
+
+  function setClaimStatus(i, kind, label){
+    var el = document.getElementById('claim-status-' + i);
+    if (!el) return;
+    el.className = 'claim-status' + (kind ? ' ' + kind : '');
+    el.innerHTML = label !== undefined ? label : (i + 1);
+  }
+
+  function setClaimMeta(i, text){
+    var el = document.getElementById('claim-meta-' + i);
+    if (el) el.textContent = text;
+  }
+
   /* ---------- Google CSE (explicit render) ---------- */
   var cseElement = null;
   var cseReady = false;
   var scriptFailedToLoad = false;
   var isFileProtocol = (window.location.protocol === 'file:');
+  var currentQueryWords = [];
 
   window.__gcse = {
     parsetags: 'explicit',
@@ -730,6 +943,15 @@
     var label = document.getElementById('verifyBtnLabel');
     btn.disabled = isLoading;
     label.innerHTML = isLoading ? '<span class="spinner-ring"></span> Đang quét…' : '▶ Kiểm chứng';
+    document.getElementById('batchBtn').disabled = isLoading;
+  }
+
+  function setBatchButtonLoading(isLoading, progressText){
+    var btn = document.getElementById('batchBtn');
+    var label = document.getElementById('batchBtnLabel');
+    btn.disabled = isLoading;
+    label.innerHTML = isLoading ? '<span class="spinner-ring dim"></span> ' + (progressText || 'Đang quét…') : '⛭ Kiểm tra từng câu';
+    document.getElementById('verifyBtn').disabled = isLoading;
   }
 
   function showDiag(html){
@@ -747,7 +969,9 @@
     document.getElementById('resultsSub').textContent = 'đang tải…';
   }
 
-  /* enrich each Google result card: clickable favicon + whole-card link to the article */
+  /* enrich each Google result card: clickable favicon, whole-card link, and
+     highlight the query's own significant words inside the snippet so it's
+     visually clear *why* a result was considered relevant */
   function enrichResultCards(){
     var target = document.getElementById('cseTarget');
     var results = target.querySelectorAll('.gsc-webResult.gsc-result');
@@ -777,12 +1001,37 @@
         if (titleWrap) titleWrap.appendChild(badge);
       }
 
+      var snippet = card.querySelector('.gs-snippet');
+      if (snippet && currentQueryWords.length > 0) {
+        highlightWordsInElement(snippet, currentQueryWords);
+      }
+
       card.classList.add('gsc-card-clickable');
       card.addEventListener('click', function(evt){
         if (evt.target.closest('a')) return;
         window.open(titleLink.href, '_blank', 'noopener');
       });
     });
+  }
+
+  /* pulls out words (>=4 chars) from the query as a crude signal of "significant"
+     terms, then wraps matches inside the given element's own text in <mark> —
+     purely a transparency aid, not a claim of semantic equivalence */
+  function extractQueryWords(query){
+    return (query.match(/[\p{L}\p{N}]{4,}/gu) || [])
+      .map(function(w){ return w.toLowerCase(); })
+      .filter(function(w, i, arr){ return arr.indexOf(w) === i; })
+      .slice(0, 12);
+  }
+
+  function escapeRegExp(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+  function highlightWordsInElement(el, words){
+    if (words.length === 0) return;
+    var text = el.textContent;
+    var pattern = new RegExp('(' + words.map(escapeRegExp).join('|') + ')', 'giu');
+    var html = escapeHtml(text).replace(pattern, function(m){ return '<mark>' + m + '</mark>'; });
+    el.innerHTML = html;
   }
 
   function showVerdict(matched){
@@ -799,25 +1048,124 @@
       vb.innerHTML =
         '<span class="verdict-icon">✓</span>' +
         '<span><strong>Đã tìm thấy nguồn đối chiếu</strong>' +
-        matched.size + '/' + SOURCES.length + ' cơ quan báo chí chính thống có bài viết liên quan đến nội dung này. ' +
-        'Bấm vào kết quả bên dưới để đọc trực tiếp và tự đối chiếu chi tiết.</span>';
+        matched.size + '/' + SOURCES.length + ' cơ quan báo chí chính thống có bài viết khớp từ khóa với nội dung này. ' +
+        'Bấm vào kết quả bên dưới để đọc trực tiếp và tự đối chiếu chi tiết — trùng từ khóa không đồng nghĩa với nội dung hoàn toàn chính xác.</span>';
     }
   }
 
-  function showCseResults(){
-    if (searchTimeoutId) { clearTimeout(searchTimeoutId); searchTimeoutId = null; }
-    document.getElementById('loadingSkeleton').classList.remove('active');
-    document.getElementById('cseTarget').classList.add('active');
-    setButtonLoading(false);
-    enrichResultCards();
-    var matched = detectMatchedSources();
-    applyMatches(matched);
-    showVerdict(matched);
-    document.getElementById('resultsSub').textContent = matched.size + '/' + SOURCES.length + ' nguồn khớp';
-    document.getElementById('statusLine').textContent = 'trạng thái: hoàn tất — ' + matched.size + '/' + SOURCES.length + ' nguồn khớp';
+  /* ---------- Lõi tìm kiếm dùng chung cho quét đơn lẻ và quét theo lô ---------- */
+
+  /* runs one CSE query and resolves once results (or "no results") land in the DOM,
+     or rejects with a reason after a timeout — used by both the single "Kiểm chứng"
+     flow and the per-claim batch flow so there is exactly one search pipeline */
+  function execSearchAndWait(query, timeoutMs){
+    return new Promise(function(resolve){
+      var target = document.getElementById('cseTarget');
+      var settled = false;
+      var timer = null;
+
+      var localObserver = new MutationObserver(function(){
+        if (target.querySelector('.gsc-results, .gsc-result, .gsc-no-results-result')) finish();
+      });
+      localObserver.observe(target, { childList:true, subtree:true });
+
+      function finish(){
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        localObserver.disconnect();
+        currentQueryWords = extractQueryWords(query);
+        enrichResultCards();
+        var matched = detectMatchedSources();
+        resolve({ status:'ok', matched:matched });
+      }
+
+      timer = setTimeout(function(){
+        if (settled) return;
+        settled = true;
+        localObserver.disconnect();
+        var diag = diagnoseStuckSearchState();
+        resolve({ status:diag.status, matched:new Set(), detail:diag });
+      }, timeoutMs || SEARCH_TIMEOUT_MS);
+
+      try {
+        cseElement.execute(query);
+      } catch (e) {
+        if (!settled) {
+          settled = true;
+          clearTimeout(timer);
+          localObserver.disconnect();
+          resolve({ status:'exception', matched:new Set(), detail:{ message:String(e) } });
+        }
+      }
+    });
   }
 
-  function thucHienKiemChung(){
+  /* waits for the CSE widget itself to finish initializing (script load + explicit render) */
+  function waitForCseReady(maxTries){
+    return new Promise(function(resolve){
+      if (cseReady && cseElement) { resolve(true); return; }
+      var tries = 0;
+      var poll = setInterval(function(){
+        tries++;
+        if (cseReady && cseElement) { clearInterval(poll); resolve(true); return; }
+        if (tries >= (maxTries || 30)) { clearInterval(poll); resolve(false); }
+      }, 300);
+    });
+  }
+
+  /* inspects the actual DOM state inside #cseTarget to classify *why* nothing
+     arrived, instead of guessing */
+  function diagnoseStuckSearchState(){
+    var box = document.getElementById('cseTarget');
+    var html = box.innerHTML;
+    var hasIframe = !!box.querySelector('iframe');
+
+    console.log('[VeriScan] Trạng thái #cseTarget sau timeout:', {
+      hasIframe: hasIframe,
+      childCount: box.children.length,
+      innerHTMLLength: html.length,
+      innerHTMLPreview: html.slice(0, 300)
+    });
+
+    if (hasIframe) return { status:'iframe' };
+    if (html.trim() === '' || box.children.length === 0) return { status:'empty' };
+    return { status:'unknown-markup' };
+  }
+
+  function showDiagForStatus(status){
+    if (status === 'iframe') {
+      showDiag(
+        '<strong>Phát hiện Google đang vẽ kết quả bên trong một &lt;iframe&gt;.</strong> ' +
+        'Đây gần như chắc chắn là do Search Engine đang dùng layout <code>"Two Page"</code> (kiểu cũ) thay vì <code>"Full Width"</code>. ' +
+        'Vào <a href="https://programmablesearchengine.google.com/" target="_blank" rel="noopener">Programmable Search Engine</a> → ' +
+        'chọn Search Engine ID <code>57f557d01a31a4753</code> → mục <em>Look and feel → Layout</em> → đổi sang <strong>Full Width</strong>, rồi tải lại trang và thử lại. ' +
+        'Trong lúc chờ, bấm "Xem thêm trên Google" bên dưới.'
+      );
+    } else if (status === 'empty') {
+      showDiag(
+        '<strong>Không có bất kỳ nội dung nào được Google trả về sau thời gian chờ (khung kết quả trống hoàn toàn).</strong> ' +
+        'Điều này cho thấy request tìm kiếm có thể đã bị chặn hoàn toàn hoặc <code>cx</code> không hợp lệ, hoặc đã hết hạn ngạch miễn phí trong ngày (100 truy vấn/ngày), chứ không phải lỗi hiển thị. ' +
+        'Hãy mở DevTools (F12) → tab <em>Network</em> → lọc "cse" hoặc "customsearch" → xem request đó trả về mã gì (200/403/429...). ' +
+        'Trong lúc chờ, bấm "Xem thêm trên Google" bên dưới.'
+      );
+    } else if (status === 'exception') {
+      showDiag(
+        '<strong>Đã xảy ra lỗi khi gọi công cụ tìm kiếm.</strong> Mở Console (F12) để xem chi tiết lỗi. ' +
+        'Trong lúc chờ, bấm "Xem thêm trên Google" bên dưới.'
+      );
+    } else {
+      showDiag(
+        '<strong>Google có vẽ ra nội dung trong khung kết quả, nhưng không khớp với các lớp CSS mà trang này nhận diện</strong> ' +
+        '(<code>.gsc-results</code>, <code>.gsc-result</code>, <code>.gsc-no-results-result</code>). ' +
+        'Mở DevTools (F12) → tab <em>Elements</em> → tìm thẻ <code>#cseTarget</code> để xem cấu trúc thực tế Google đang trả về. ' +
+        '(Xem Console để có đoạn preview HTML đã in sẵn.) Trong lúc chờ, bấm "Xem thêm trên Google" bên dưới.'
+      );
+    }
+  }
+
+  /* ---------- Quét đơn (toàn bộ nội dung, hoặc một câu do người dùng chọn) ---------- */
+  async function thucHienKiemChung(){
     var tuKhoa = document.getElementById('searchInput').value.trim();
 
     if (tuKhoa === '') {
@@ -829,18 +1177,19 @@
       return;
     }
 
-    if (searchTimeoutId) { clearTimeout(searchTimeoutId); searchTimeoutId = null; }
     hideDiag();
     resetRadar();
     openResults();
     document.getElementById('statusLine').textContent = 'trạng thái: đang quét ' + SOURCES.length + ' nguồn…';
     setScanning();
 
+    var claims = splitIntoClaims(tuKhoa);
+    renderClaimsPanel(claims);
+
     var fallbackLink = document.getElementById('fallbackLink');
     fallbackLink.href = 'https://www.google.com/search?q=' + encodeURIComponent(tuKhoa + ' ' + SOURCE_FILTER);
 
     if (isFileProtocol) {
-      showLoadingSkeleton();
       document.getElementById('loadingSkeleton').classList.remove('active');
       showDiag(
         '<strong>Không thể tìm kiếm khi mở qua file://.</strong> Hãy chạy trang qua local server hoặc host thật rồi thử lại. ' +
@@ -852,99 +1201,144 @@
     setButtonLoading(true);
     showLoadingSkeleton();
 
-    if (cseReady && cseElement) { runSearch(tuKhoa); return; }
-
-    var tries = 0, maxTries = 30;
-    var poll = setInterval(function(){
-      tries++;
-      if (cseReady && cseElement) { clearInterval(poll); runSearch(tuKhoa); return; }
-      if (tries >= maxTries) {
-        clearInterval(poll);
-        setButtonLoading(false);
-        document.getElementById('loadingSkeleton').classList.remove('active');
-        if (scriptFailedToLoad) {
-          showDiag(
-            '<strong>Không tải được script tìm kiếm.</strong> Trình duyệt không kết nối được tới <code>cse.google.com</code> — ' +
-            'thường do mất mạng, tường lửa trường/cơ quan, hoặc AdBlock. Hãy tắt AdBlock hoặc đổi mạng rồi thử lại.'
-          );
-        } else {
-          showDiag(
-            '<strong>Script đã tải nhưng công cụ tìm kiếm không khởi tạo được.</strong> ' +
-            'Khả năng cao mã Search Engine ID (<code>cx</code>) chưa được bật hoặc chưa cấu hình site tìm kiếm trong ' +
-            '<a href="https://programmablesearchengine.google.com/" target="_blank" rel="noopener">Programmable Search Engine</a>. ' +
-            'Trong lúc chờ sửa, bấm "Xem thêm trên Google" bên dưới.'
-          );
-        }
-      }
-    }, 300);
-  }
-
-  var searchTimeoutId = null;
-
-  function runSearch(query){
-    showLoadingSkeleton();
-    cseElement.execute(query);
-
-    if (searchTimeoutId) clearTimeout(searchTimeoutId);
-    searchTimeoutId = setTimeout(function(){
-      searchTimeoutId = null;
-      document.getElementById('loadingSkeleton').classList.remove('active');
+    var ready = await waitForCseReady();
+    if (!ready) {
       setButtonLoading(false);
-      diagnoseStuckSearch();
-    }, 15000);
-  }
-
-  /* inspect the actual DOM state inside #cseTarget to pin down *why* nothing arrived,
-     instead of guessing — this tells us which of the 3 usual causes it is */
-  function diagnoseStuckSearch(){
-    var box = document.getElementById('cseTarget');
-    var html = box.innerHTML;
-    var hasIframe = !!box.querySelector('iframe');
-    var snippet = html.trim().slice(0, 300).replace(/</g, '&lt;');
-
-    console.log('[VeriScan] Trạng thái #cseTarget sau 15s:', {
-      hasIframe: hasIframe,
-      childCount: box.children.length,
-      innerHTMLLength: html.length,
-      innerHTMLPreview: html.slice(0, 300)
-    });
-
-    if (hasIframe) {
-      showDiag(
-        '<strong>Phát hiện Google đang vẽ kết quả bên trong một &lt;iframe&gt;.</strong> ' +
-        'Đây gần như chắc chắn là do Search Engine đang dùng layout <code>"Two Page"</code> (kiểu cũ) thay vì <code>"Full Width"</code>. ' +
-        'Vào <a href="https://programmablesearchengine.google.com/" target="_blank" rel="noopener">Programmable Search Engine</a> → ' +
-        'chọn Search Engine ID <code>57f557d01a31a4753</code> → mục <em>Look and feel → Layout</em> → đổi sang <strong>Full Width</strong>, rồi tải lại trang và thử lại. ' +
-        'Trong lúc chờ, bấm "Xem thêm trên Google" bên dưới.'
-      );
+      document.getElementById('loadingSkeleton').classList.remove('active');
+      if (scriptFailedToLoad) {
+        showDiag(
+          '<strong>Không tải được script tìm kiếm.</strong> Trình duyệt không kết nối được tới <code>cse.google.com</code> — ' +
+          'thường do mất mạng, tường lửa trường/cơ quan, hoặc AdBlock. Hãy tắt AdBlock hoặc đổi mạng rồi thử lại.'
+        );
+      } else {
+        showDiag(
+          '<strong>Script đã tải nhưng công cụ tìm kiếm không khởi tạo được.</strong> ' +
+          'Khả năng cao mã Search Engine ID (<code>cx</code>) chưa được bật hoặc chưa cấu hình site tìm kiếm trong ' +
+          '<a href="https://programmablesearchengine.google.com/" target="_blank" rel="noopener">Programmable Search Engine</a>. ' +
+          'Trong lúc chờ sửa, bấm "Xem thêm trên Google" bên dưới.'
+        );
+      }
       return;
     }
 
-    if (html.trim() === '' || box.children.length === 0) {
-      showDiag(
-        '<strong>Không có bất kỳ nội dung nào được Google trả về sau 15 giây (khung kết quả trống hoàn toàn).</strong> ' +
-        'Điều này cho thấy request tìm kiếm có thể đã bị chặn hoàn toàn hoặc <code>cx</code> không hợp lệ/không thuộc quyền sở hữu của bạn, chứ không phải lỗi hiển thị. ' +
-        'Hãy mở DevTools (F12) → tab <em>Network</em> → lọc "cse" hoặc "customsearch" → xem request đó trả về mã gì (200/403/429...). ' +
-        'Nếu là 403/429, khả năng cao <code>cx</code> chưa cấu hình hoặc đã hết hạn ngạch miễn phí. ' +
-        'Trong lúc chờ, bấm "Xem thêm trên Google" bên dưới.'
-      );
+    showLoadingSkeleton();
+    var result = await execSearchAndWait(tuKhoa, SEARCH_TIMEOUT_MS);
+    document.getElementById('loadingSkeleton').classList.remove('active');
+    setButtonLoading(false);
+
+    if (result.status !== 'ok') {
+      showDiagForStatus(result.status);
       return;
     }
 
-    showDiag(
-      '<strong>Google có vẽ ra nội dung trong khung kết quả, nhưng không khớp với các lớp CSS mà trang này nhận diện</strong> ' +
-      '(<code>.gsc-results</code>, <code>.gsc-result</code>, <code>.gsc-no-results-result</code>). ' +
-      'Mở DevTools (F12) → tab <em>Elements</em> → tìm thẻ <code>#cseTarget</code> để xem cấu trúc thực tế Google đang trả về, ' +
-      'rồi cho tôi biết tên class/thẻ bên trong đó để mình cập nhật lại bộ dò cho khớp. ' +
-      '(Xem Console để có đoạn preview HTML đã in sẵn.) Trong lúc chờ, bấm "Xem thêm trên Google" bên dưới.'
-    );
+    document.getElementById('cseTarget').classList.add('active');
+    applyMatches(result.matched);
+    showVerdict(result.matched);
+    document.getElementById('resultsSub').textContent = result.matched.size + '/' + SOURCES.length + ' nguồn khớp';
+    document.getElementById('statusLine').textContent = 'trạng thái: hoàn tất — ' + result.matched.size + '/' + SOURCES.length + ' nguồn khớp';
   }
 
-  var target = document.getElementById('cseTarget');
-  var observer = new MutationObserver(function(){
-    if (target.querySelector('.gsc-results, .gsc-result, .gsc-no-results-result')) showCseResults();
-  });
-  observer.observe(target, { childList:true, subtree:true });
+  /* re-runs the single-search flow for one claim the user picked from the list —
+     keeps the original pasted text in place conceptually, but the search box is
+     updated so the fallback Google link and status line stay consistent */
+  function checkSingleClaim(claimText){
+    document.getElementById('searchInput').value = claimText;
+    thucHienKiemChung();
+  }
+
+  /* ---------- Quét theo lô: từng câu một, tuần tự ---------- */
+  function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+
+  async function checkAllClaims(){
+    var fullText = document.getElementById('searchInput').value.trim();
+    if (fullText === '') {
+      Swal.fire({
+        icon:'warning', title:'Thiếu nội dung',
+        text:'Vui lòng dán nội dung cần kiểm chứng trước khi tiếp tục.',
+        background:'#10151d', color:'#e9eef3', confirmButtonColor:'#5ec8f5'
+      });
+      return;
+    }
+
+    if (isFileProtocol) {
+      showDiag('<strong>Không thể tìm kiếm khi mở qua file://.</strong> Hãy chạy trang qua local server hoặc host thật rồi thử lại.');
+      return;
+    }
+
+    var claims = splitIntoClaims(fullText);
+    if (claims.length === 0) return;
+
+    hideDiag();
+    resetRadar();
+    openResults();
+    renderClaimsPanel(claims);
+    setBatchButtonLoading(true, '0/' + claims.length);
+
+    var ready = await waitForCseReady();
+    if (!ready) {
+      setBatchButtonLoading(false);
+      showDiag('<strong>Công cụ tìm kiếm chưa sẵn sàng.</strong> Vui lòng đợi vài giây rồi bấm lại "Kiểm tra từng câu".');
+      return;
+    }
+
+    var unionMatched = new Set();
+    var okCount = 0, noneCount = 0, errCount = 0;
+
+    for (var i = 0; i < claims.length; i++) {
+      setClaimStatus(i, 'busy', '<span class="spinner-ring dim" style="width:12px;height:12px;"></span>');
+      setClaimMeta(i, 'đang quét…');
+      setBatchButtonLoading(true, (i) + '/' + claims.length);
+
+      var result = await execSearchAndWait(claims[i], SEARCH_TIMEOUT_MS);
+
+      if (result.status === 'ok') {
+        result.matched.forEach(function(d){ unionMatched.add(d); });
+        if (result.matched.size > 0) {
+          okCount++;
+          setClaimStatus(i, 'ok', '✓');
+          setClaimMeta(i, result.matched.size + '/' + SOURCES.length + ' nguồn khớp');
+        } else {
+          noneCount++;
+          setClaimStatus(i, 'none', '⚠');
+          setClaimMeta(i, 'không tìm thấy nguồn khớp');
+        }
+        document.getElementById('cseTarget').classList.add('active');
+        document.getElementById('resultsSub').textContent = 'câu ' + (i + 1) + '/' + claims.length + ' — ' + result.matched.size + '/' + SOURCES.length + ' nguồn khớp';
+      } else {
+        errCount++;
+        setClaimStatus(i, 'err', '✕');
+        setClaimMeta(i, 'lỗi khi quét (xem Console)');
+      }
+
+      applyMatches(unionMatched);
+
+      if (i < claims.length - 1) await sleep(BATCH_DELAY_MS);
+    }
+
+    setBatchButtonLoading(false);
+    document.getElementById('loadingSkeleton').classList.remove('active');
+
+    var summary = document.getElementById('batchSummary');
+    summary.textContent = okCount + '/' + claims.length + ' câu có nguồn đối chiếu' +
+      (noneCount ? ' · ' + noneCount + ' câu không tìm thấy' : '') +
+      (errCount ? ' · ' + errCount + ' câu gặp lỗi khi quét' : '');
+    summary.classList.add('done');
+
+    document.getElementById('statusLine').textContent =
+      'trạng thái: hoàn tất quét theo câu — ' + okCount + '/' + claims.length + ' câu có nguồn, ' + unionMatched.size + '/' + SOURCES.length + ' nguồn tổng hợp';
+
+    if (unionMatched.size === 0) {
+      showVerdict(new Set());
+    } else {
+      var vb = document.getElementById('verdictBanner');
+      vb.className = 'verdict-banner show verified';
+      vb.innerHTML =
+        '<span class="verdict-icon">✓</span>' +
+        '<span><strong>Kết quả theo từng câu</strong>' +
+        okCount + '/' + claims.length + ' câu tìm thấy ít nhất một nguồn khớp từ khóa, tổng cộng ' + unionMatched.size + '/' + SOURCES.length + ' cơ quan báo chí liên quan. ' +
+        'Xem chi tiết từng câu ở trên và bấm "kiểm tra" lại nếu muốn xem bài viết cụ thể cho một câu.</span>';
+    }
+  }
 
   document.getElementById('searchInput').addEventListener('keydown', function(event){
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -957,13 +1351,13 @@
      and results panel back off, as if nothing had been scanned yet */
   document.getElementById('searchInput').addEventListener('input', function(){
     if (this.value.trim() !== '') return;
-    if (searchTimeoutId) { clearTimeout(searchTimeoutId); searchTimeoutId = null; }
     resetRadar();
     hideDiag();
     document.getElementById('resultsWrapper').classList.remove('open');
     document.getElementById('cseTarget').classList.remove('active');
     document.getElementById('loadingSkeleton').classList.remove('active');
     setButtonLoading(false);
+    setBatchButtonLoading(false);
     document.getElementById('statusLine').textContent = 'trạng thái: chờ nhập nội dung';
   });
 </script>
