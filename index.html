@@ -26,6 +26,8 @@
     --red:#ff4d5e;
     --red-dim:#4a1e23;
     --cyan:#5ec8f5;
+    --violet:#a98bf5;
+    --violet-dim:#2e2450;
   }
 
   *{ box-sizing:border-box; }
@@ -61,7 +63,7 @@
     margin-bottom:56px;
     flex-wrap:wrap;
   }
-  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand{ display:flex; align-items:center; gap:10px; min-width:0; }
   .brand-mark{
     width:32px; height:32px;
     border-radius:9px;
@@ -79,6 +81,7 @@
   .brand-sub{
     font-family:'JetBrains Mono', monospace;
     font-size:0.72rem; color:var(--text-faint);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
   }
 
   .topbar-right{ display:flex; align-items:center; gap:22px; }
@@ -105,8 +108,8 @@
   h1{
     font-family:'Space Grotesk','Be Vietnam Pro',sans-serif;
     font-weight:600;
-    font-size:clamp(2rem, 4.4vw, 3.05rem);
-    line-height:1.1;
+    font-size:clamp(1.65rem, 4.4vw, 3.05rem);
+    line-height:1.12;
     letter-spacing:-0.015em;
     margin:0 0 16px;
     max-width:18ch;
@@ -199,6 +202,8 @@
   }
   #searchInput{
     flex:1;
+    width:100%;
+    min-width:0;
     resize:vertical;
     min-height:96px;
     background:transparent;
@@ -221,7 +226,8 @@
     font-weight:600;
     font-size:0.88rem;
     cursor:pointer;
-    display:flex; align-items:center; gap:10px;
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    min-height:46px;
     transition:filter .15s ease, transform .15s ease, box-shadow .15s ease;
   }
   .btn-verify{
@@ -249,6 +255,7 @@
     display:inline-block;
   }
   .spinner-ring.dim{ border-color:rgba(94,200,245,0.25); border-top-color:var(--cyan); }
+  .spinner-ring.violet{ border-color:rgba(169,139,245,0.25); border-top-color:var(--violet); }
   @keyframes spin{ to{ transform:rotate(360deg); } }
 
   .status-line{
@@ -256,6 +263,38 @@
     font-size:0.78rem;
     color:var(--text-faint);
     margin:14px 0 0;
+    word-break:break-word;
+  }
+
+  /* ---- AI semantic controls ---- */
+  .ctrl-row{
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+    margin-top:14px; padding-top:14px;
+    border-top:1px solid var(--line-soft);
+  }
+  .switch{
+    display:inline-flex; align-items:center; gap:9px;
+    font-size:0.85rem; color:var(--text-dim); cursor:pointer;
+    padding:6px 0;
+  }
+  .switch input{ width:17px; height:17px; accent-color:var(--violet); cursor:pointer; flex-shrink:0; }
+  .switch.on{ color:var(--violet); }
+  .key-btn{
+    background:transparent;
+    border:1px solid var(--line);
+    color:var(--text-faint);
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.74rem;
+    padding:8px 12px; border-radius:8px; cursor:pointer;
+    display:inline-flex; align-items:center; gap:7px;
+    transition:color .15s ease, border-color .15s ease;
+  }
+  .key-btn:hover{ color:var(--violet); border-color:var(--violet); }
+  .key-state{ width:7px; height:7px; border-radius:50%; background:var(--text-faint); }
+  .key-state.set{ background:var(--green); }
+  .ctrl-hint{
+    font-size:0.78rem; color:var(--text-faint); margin:10px 0 0; line-height:1.55;
+    flex-basis:100%;
   }
 
   /* ---- Radar / network panel ---- */
@@ -334,7 +373,7 @@
     color:#ffb3ba;
   }
   .diag-banner.show{ display:block; animation:fadeUp .3s ease both; }
-  .diag-banner code{ background:#1a0f10; padding:1px 5px; border-radius:4px; color:#ffd9dc; }
+  .diag-banner code{ background:#1a0f10; padding:1px 5px; border-radius:4px; color:#ffd9dc; word-break:break-word; }
   @keyframes fadeUp{ from{ opacity:0; transform:translateY(6px); } to{ opacity:1; transform:translateY(0); } }
 
   /* ---------------- Results ---------------- */
@@ -342,10 +381,11 @@
     max-height:0; opacity:0; overflow:hidden;
     transition:max-height .5s cubic-bezier(.22,1,.36,1), opacity .4s ease;
   }
-  #resultsWrapper.open{ max-height:8000px; opacity:1; margin-top:36px; }
+  #resultsWrapper.open{ max-height:12000px; opacity:1; margin-top:36px; }
 
   .results-head{
     display:flex; align-items:baseline; justify-content:space-between;
+    gap:10px; flex-wrap:wrap;
     padding-bottom:14px; border-bottom:1px solid var(--line);
     margin-bottom:20px;
   }
@@ -382,6 +422,87 @@
   }
   .verdict-banner.unverified strong{ color:var(--amber); }
 
+  /* ---- Confidence score badge ---- */
+  .score-badge{
+    display:inline-flex; align-items:center; gap:8px;
+    flex-shrink:0;
+    border-radius:12px;
+    padding:8px 14px;
+    font-family:'JetBrains Mono', monospace;
+  }
+  .score-badge .score-num{ font-size:1.3rem; font-weight:700; line-height:1; }
+  .score-badge .score-txt{ display:flex; flex-direction:column; }
+  .score-badge .score-label{ font-size:0.68rem; text-transform:uppercase; letter-spacing:0.04em; opacity:0.85; }
+  .score-badge .score-basis{ font-size:0.68rem; color:var(--text-faint); margin-top:1px; }
+  .score-high{ background:var(--green-dim); border:1px solid rgba(51,209,122,0.4); color:var(--green); }
+  .score-mid{ background:var(--amber-dim); border:1px solid rgba(255,176,32,0.4); color:var(--amber); }
+  .score-low{ background:var(--red-dim); border:1px solid rgba(255,77,94,0.4); color:#ffb3ba; }
+  .verdict-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:14px; width:100%; flex-wrap:wrap; }
+  .score-pill{
+    display:inline-flex; align-items:center; gap:5px;
+    font-family:'JetBrains Mono', monospace; font-size:0.68rem; font-weight:600;
+    padding:3px 8px; border-radius:20px; margin-left:8px; vertical-align:middle;
+    border:1px solid var(--line);
+  }
+  .score-pill.score-high{ color:var(--green); }
+  .score-pill.score-mid{ color:var(--amber); }
+  .score-pill.score-low{ color:#ffb3ba; }
+
+  /* ---- AI semantic reading panel ---- */
+  #semanticPanel{ display:none; margin-bottom:26px; }
+  #semanticPanel.show{ display:block; animation:fadeUp .3s ease both; }
+  .sem-head{
+    display:flex; align-items:center; gap:9px;
+    margin:0 0 6px;
+    font-family:'Space Grotesk','Be Vietnam Pro',sans-serif;
+    font-size:0.98rem; font-weight:600;
+  }
+  .sem-head .dot{ width:8px; height:8px; border-radius:50%; background:var(--violet); flex-shrink:0; }
+  .sem-note{ font-size:0.78rem; color:var(--text-faint); margin:0 0 14px; line-height:1.55; }
+  .sem-card{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-left:3px solid var(--text-faint);
+    border-radius:12px;
+    padding:16px 18px;
+    margin-bottom:12px;
+  }
+  .sem-card.support{ border-left-color:var(--green); }
+  .sem-card.contradict{ border-left-color:var(--red); }
+  .sem-card.unrelated{ border-left-color:var(--amber); }
+  .sem-card.unknown{ border-left-color:var(--text-faint); }
+  .sem-verdict{
+    display:inline-flex; align-items:center; gap:7px;
+    font-family:'JetBrains Mono', monospace; font-size:0.74rem; font-weight:600;
+    padding:4px 10px; border-radius:20px; margin-bottom:10px;
+    border:1px solid var(--line); color:var(--text-dim); background:var(--panel);
+  }
+  .sem-card.support .sem-verdict{ color:var(--green); border-color:rgba(51,209,122,0.4); background:var(--green-dim); }
+  .sem-card.contradict .sem-verdict{ color:#ffb3ba; border-color:rgba(255,77,94,0.4); background:var(--red-dim); }
+  .sem-card.unrelated .sem-verdict{ color:var(--amber); border-color:rgba(255,176,32,0.4); background:var(--amber-dim); }
+  .sem-claim{ font-size:0.88rem; line-height:1.6; color:var(--text); margin:0 0 8px; }
+  .sem-why{ font-size:0.87rem; line-height:1.65; color:var(--text-dim); margin:0 0 12px; }
+  .sem-evi{ list-style:none; margin:0; padding:0; border-top:1px solid var(--line-soft); padding-top:10px; }
+  .sem-evi li{
+    display:flex; align-items:flex-start; gap:9px;
+    font-size:0.82rem; line-height:1.55; color:var(--text-dim);
+    padding:6px 0;
+  }
+  .sem-evi .rel{
+    font-family:'JetBrains Mono', monospace; font-size:0.7rem;
+    flex-shrink:0; padding:2px 7px; border-radius:6px;
+    border:1px solid var(--line); color:var(--text-faint); margin-top:1px;
+  }
+  .sem-evi .rel.support{ color:var(--green); border-color:rgba(51,209,122,0.4); }
+  .sem-evi .rel.contradict{ color:#ffb3ba; border-color:rgba(255,77,94,0.4); }
+  .sem-evi a{ text-decoration:none; }
+  .sem-evi a:hover{ text-decoration:underline; }
+  .sem-status{
+    font-family:'JetBrains Mono', monospace; font-size:0.78rem;
+    color:var(--violet); margin:0 0 12px;
+    display:flex; align-items:center; gap:9px;
+  }
+
   /* ---- Claims panel (sentence-level breakdown) ---- */
   #claimsPanel{ display:none; margin-bottom:26px; }
   #claimsPanel.show{ display:block; animation:fadeUp .3s ease both; }
@@ -402,7 +523,9 @@
     border:1px solid var(--line);
     border-radius:11px;
     margin-bottom:10px;
+    flex-wrap:wrap;
   }
+  .claim-body{ flex:1; min-width:180px; }
   .claim-status{
     flex-shrink:0; width:26px; height:26px; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
@@ -414,13 +537,16 @@
   .claim-status.none{ background:var(--amber-dim); border-color:var(--amber); color:var(--amber); }
   .claim-status.err{ background:var(--red-dim); border-color:var(--red-dim); color:#ffb3ba; }
   .claim-status.busy{ background:var(--panel); border-color:var(--cyan); }
+  .claim-status.contradict{ background:var(--red-dim); border-color:var(--red); color:#ffb3ba; }
   .claim-text{ flex:1; font-size:0.87rem; line-height:1.55; color:var(--text); }
-  .claim-meta{ font-family:'JetBrains Mono', monospace; font-size:0.72rem; color:var(--text-faint); margin-top:4px; }
+  .claim-meta{ font-family:'JetBrains Mono', monospace; font-size:0.72rem; color:var(--text-faint); margin-top:4px; line-height:1.5; }
+  .claim-meta .sem-tag{ color:var(--violet); }
+  .claim-meta .sem-tag.bad{ color:#ffb3ba; }
   .claim-check-btn{
     flex-shrink:0;
     background:transparent; border:1px solid var(--line); color:var(--text-dim);
     font-family:'JetBrains Mono', monospace; font-size:0.72rem;
-    padding:7px 12px; border-radius:8px; cursor:pointer;
+    padding:9px 14px; border-radius:8px; cursor:pointer;
     transition:color .15s ease, border-color .15s ease;
     white-space:nowrap;
   }
@@ -429,7 +555,7 @@
 
   .batch-summary{
     font-family:'JetBrains Mono', monospace; font-size:0.78rem; color:var(--text-faint);
-    margin-top:6px;
+    margin-top:6px; line-height:1.55;
   }
   .batch-summary.done{ color:var(--green); }
 
@@ -518,6 +644,7 @@
   .gsc-url-top{
     margin:8px 0 8px !important;
     display:flex !important; align-items:center !important; gap:7px !important;
+    flex-wrap:wrap !important;
   }
   .gs-visibleUrl, .gs-bidi-start-align.gs-visibleUrl{
     color:var(--text-faint) !important; font-family:'JetBrains Mono', monospace !important;
@@ -546,8 +673,8 @@
   .gsc-cursor-box{ text-align:left !important; margin-top:8px !important; }
   .gsc-cursor-page{
     font-family:'JetBrains Mono', monospace !important; font-size:0.8rem !important;
-    color:var(--text-dim) !important; padding:4px 10px !important; margin:0 4px 0 0 !important;
-    border-radius:6px !important;
+    color:var(--text-dim) !important; padding:6px 12px !important; margin:0 4px 6px 0 !important;
+    border-radius:6px !important; display:inline-block !important;
   }
   .gsc-cursor-page:hover{ color:var(--cyan) !important; text-decoration:none !important; background:var(--panel-2) !important; }
   .gsc-cursor-current-page{ color:var(--cyan) !important; font-weight:600 !important; }
@@ -570,6 +697,75 @@
     display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;
   }
   footer span:last-child{ font-family:'JetBrains Mono', monospace; }
+
+  /* ---------------- Tablet ---------------- */
+  @media (max-width: 760px){
+    .wrap{ padding:0 18px 70px; }
+    .topbar{ margin-bottom:38px; }
+    .hero{ padding:2px 0 34px; }
+    .hero p.lede{ font-size:0.98rem; }
+    .grid, .note-grid{ gap:20px; }
+    .panel{ padding:20px; border-radius:16px; }
+    .note-panel{ padding:20px; border-radius:16px; }
+  }
+
+  /* ---------------- Phone ---------------- */
+  @media (max-width: 560px){
+    .wrap{ padding:0 14px 60px; }
+
+    .topbar{ padding:14px 0; gap:10px; }
+    .topbar-right{ width:100%; }
+    .datetime-pill{ width:100%; justify-content:center; font-size:0.74rem; }
+    .brand-sub{ max-width:62vw; }
+
+    h1{ max-width:100%; }
+    .hero-tag{ font-size:0.8rem; }
+
+    .console-body{ padding:13px; gap:8px; }
+    #searchInput{ font-size:16px; min-height:120px; } /* 16px stops iOS zoom-on-focus */
+
+    /* full-width, thumb-sized action buttons */
+    .btn-row{ gap:8px; }
+    .btn-verify, .btn-secondary{ width:100%; padding:14px 18px; }
+
+    .ctrl-row{ gap:10px; }
+    .key-btn{ width:100%; justify-content:center; padding:11px 12px; }
+
+    /* the 8-node radar is unreadable below ~560px — the legend carries the same
+       information, so swap the SVG out for a chip grid instead of shrinking it */
+    #radarSvg{ display:none; }
+    .legend{ grid-template-columns:1fr 1fr; gap:8px; }
+    .legend li{
+      border:1px solid var(--line); border-radius:9px;
+      padding:9px 10px; font-size:0.78rem;
+      background:var(--panel-2);
+    }
+    .legend li.matched{ border-color:var(--green); background:var(--green-dim); }
+
+    .claim-item{ padding:12px; gap:10px; }
+    .claim-check-btn{ width:100%; padding:11px; }
+    .claim-text{ font-size:0.86rem; }
+
+    .verdict-banner{ padding:14px; font-size:0.87rem; }
+    .verdict-head{ flex-direction:column; gap:10px; }
+    .score-badge{ width:100%; justify-content:center; }
+    .sem-card{ padding:14px; }
+    .sem-evi li{ flex-wrap:wrap; }
+
+    .results-head{ flex-direction:column; align-items:flex-start; gap:4px; }
+    .fallback-row{ text-align:left; }
+
+    .gsc-webResult.gsc-result, .gsc-results .gsc-webResult.gsc-result.gsc-result{ padding:13px 14px !important; }
+    .gs-title, .gs-title *{ font-size:0.96rem !important; }
+    .gs-snippet{ font-size:0.87rem !important; }
+    .gsc-badge{ margin:6px 0 0 !important; display:inline-block; }
+
+    footer{ flex-direction:column; gap:6px; }
+  }
+
+  @media (max-width: 380px){
+    .legend{ grid-template-columns:1fr; }
+  }
 </style>
 </head>
 <body>
@@ -602,7 +798,7 @@
     </svg>
     <p class="hero-tag">Dự án Khoa học Kỹ thuật &nbsp;·&nbsp; chống <b>ảo giác AI</b> bằng đối chiếu báo chí</p>
     <h1>Quét và đối chiếu nội dung AI với báo chí chính thống Việt Nam</h1>
-    <p class="lede">Dán một câu trả lời của AI vào bên dưới. Hệ thống đối chiếu trực tiếp với 8 cơ quan báo chí được cấp phép</p>
+    <p class="lede">Dán một câu trả lời của AI vào bên dưới. Hệ thống đối chiếu trực tiếp với 8 cơ quan báo chí được cấp phép.</p>
   </div>
 
   <div class="grid">
@@ -627,6 +823,19 @@
           <span id="batchBtnLabel">⛭ Kiểm tra từng câu</span>
         </button>
       </div>
+
+      <div class="ctrl-row">
+        <label class="switch" id="semanticSwitchLabel" for="semanticToggle">
+          <input type="checkbox" id="semanticToggle">
+          Đọc bài báo và đối chiếu ý nghĩa
+        </label>
+        <button type="button" class="key-btn" id="keyBtn" onclick="moHopKhoaAPI()">
+          <span class="key-state" id="keyState"></span>
+          <span id="keyBtnLabel">Thêm khóa API</span>
+        </button>
+        <p class="ctrl-hint" id="semanticHint"></p>
+      </div>
+
       <p class="status-line" id="statusLine" role="status" aria-live="polite">trạng thái: chờ nhập nội dung</p>
 
       <div id="diagBanner" class="diag-banner" role="alert"></div>
@@ -640,6 +849,7 @@
     </section>
 
   </div>
+
   <div id="resultsWrapper">
     <div class="results-head">
       <h2 class="results-title">Kết quả đối chiếu</h2>
@@ -647,6 +857,12 @@
     </div>
 
     <div id="verdictBanner" class="verdict-banner"></div>
+
+    <div id="semanticPanel">
+      <h3 class="sem-head"><span class="dot" aria-hidden="true"></span>Đối chiếu ý nghĩa</h3>
+      <p class="sem-note">Phần này do AI đọc tiêu đề và tóm tắt của các bài báo tìm được rồi so với câu cần kiểm chứng. Kết quả chỉ dựa trên đoạn trích, không phải toàn văn bài báo.</p>
+      <div id="semanticBody"></div>
+    </div>
 
     <div id="claimsPanel">
       <div class="claims-head">
@@ -695,6 +911,86 @@
   var MAX_CLAIMS = 8;
   var BATCH_DELAY_MS = 900;
   var SEARCH_TIMEOUT_MS = 15000;
+
+  /* ---------- Lớp đối chiếu ngữ nghĩa (Gemini) ---------- */
+  /* Google ngừng cấp model cũ cho người dùng mới khá thường xuyên (2.5-flash đã bị
+     khóa và trả 404). Giữ một danh sách ưu tiên: nếu model đầu bị 404/không tồn tại,
+     tự động lùi xuống model kế tiếp và nhớ lựa chọn đó cho các lần gọi sau. */
+  var GEMINI_MODELS = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-flash-latest'];
+  var geminiModelIndex = 0;
+  function geminiUrl(model){
+    return 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent';
+  }
+  var KEY_STORAGE = 'aiauthn_gemini_key';
+  var MAX_EVIDENCE = 5;       // số bài báo gửi cho AI mỗi lần
+  var SNIPPET_MAX_CHARS = 400;
+
+  /* localStorage có thể bị chặn (chế độ riêng tư, iframe sandbox) — bọc lại để
+     trang vẫn chạy bình thường, chỉ mất tính năng nhớ khóa */
+  function readStored(k){ try { return window.localStorage.getItem(k) || ''; } catch (e) { return ''; } }
+  function writeStored(k, v){ try { window.localStorage.setItem(k, v); return true; } catch (e) { return false; } }
+  function removeStored(k){ try { window.localStorage.removeItem(k); } catch (e) {} }
+
+  var apiKeyMemory = '';   // dự phòng khi không ghi được localStorage
+  function getApiKey(){ return apiKeyMemory || readStored(KEY_STORAGE); }
+
+  function refreshKeyUi(){
+    var has = !!getApiKey();
+    document.getElementById('keyState').classList.toggle('set', has);
+    document.getElementById('keyBtnLabel').textContent = has ? 'Đã có API' : 'Thêm API';
+  }
+
+  function moHopKhoaAPI(){
+    var current = getApiKey();
+    Swal.fire({
+      title: current ? 'API' : 'Thêm API',
+      html:
+        '<p style="font-size:0.88rem;line-height:1.6;color:#8595a6;text-align:left;margin:0 0 12px">' +
+        'Lấy API tại <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="color:#5ec8f5">Google AI Studio</a>. ' +
+        '' +
+        '' +
+        '</p>',
+      input: 'password',
+      inputValue: current,
+      inputPlaceholder: 'AIza...',
+      inputAttributes: { autocapitalize:'off', autocorrect:'off', spellcheck:'false' },
+      showCancelButton: true,
+      showDenyButton: !!current,
+      confirmButtonText: 'Lưu khóa',
+      denyButtonText: 'Xóa khóa',
+      cancelButtonText: 'Đóng',
+      background: '#10151d',
+      color: '#e9eef3',
+      confirmButtonColor: '#a98bf5',
+      denyButtonColor: '#4a1e23',
+      cancelButtonColor: '#232d3a'
+    }).then(function(res){
+      if (res.isConfirmed) {
+        var k = (res.value || '').trim();
+        if (!k) return;
+        apiKeyMemory = k;
+        writeStored(KEY_STORAGE, k);
+        refreshKeyUi();
+        document.getElementById('semanticToggle').checked = true;
+        syncSemanticSwitch();
+      } else if (res.isDenied) {
+        apiKeyMemory = '';
+        removeStored(KEY_STORAGE);
+        refreshKeyUi();
+        document.getElementById('semanticToggle').checked = false;
+        syncSemanticSwitch();
+      }
+    });
+  }
+
+  function syncSemanticSwitch(){
+    var on = document.getElementById('semanticToggle').checked;
+    document.getElementById('semanticSwitchLabel').classList.toggle('on', on);
+  }
+
+  function semanticEnabled(){
+    return document.getElementById('semanticToggle').checked && !!getApiKey();
+  }
 
   /* ---------- Build radar SVG + legend from SOURCES ---------- */
   (function buildRadar(){
@@ -763,6 +1059,9 @@
     document.getElementById('claimList').innerHTML = '';
     document.getElementById('batchSummary').textContent = '';
     document.getElementById('batchSummary').classList.remove('done');
+    var sp = document.getElementById('semanticPanel');
+    sp.classList.remove('show');
+    document.getElementById('semanticBody').innerHTML = '';
   }
 
   function setScanning(){
@@ -842,7 +1141,7 @@
       li.id = 'claim-' + i;
       li.innerHTML =
         '<span class="claim-status" id="claim-status-' + i + '">' + (i + 1) + '</span>' +
-        '<div style="flex:1">' +
+        '<div class="claim-body">' +
           '<div class="claim-text">' + escapeHtml(claim) + '</div>' +
           '<div class="claim-meta" id="claim-meta-' + i + '"></div>' +
         '</div>' +
@@ -868,9 +1167,9 @@
     el.innerHTML = label !== undefined ? label : (i + 1);
   }
 
-  function setClaimMeta(i, text){
+  function setClaimMeta(i, html){
     var el = document.getElementById('claim-meta-' + i);
-    if (el) el.textContent = text;
+    if (el) el.innerHTML = html;
   }
 
   /* ---------- Google CSE (explicit render) ---------- */
@@ -1053,7 +1352,7 @@
         currentQueryWords = extractQueryWords(query);
         enrichResultCards();
         var matched = detectMatchedSources();
-        resolve({ status:'ok', matched:matched });
+        resolve({ status:'ok', matched:matched, items:collectResultItems() });
       }
 
       timer = setTimeout(function(){
@@ -1061,7 +1360,7 @@
         settled = true;
         localObserver.disconnect();
         var diag = diagnoseStuckSearchState();
-        resolve({ status:diag.status, matched:new Set(), detail:diag });
+        resolve({ status:diag.status, matched:new Set(), items:[], detail:diag });
       }, timeoutMs || SEARCH_TIMEOUT_MS);
 
       try {
@@ -1071,10 +1370,35 @@
           settled = true;
           clearTimeout(timer);
           localObserver.disconnect();
-          resolve({ status:'exception', matched:new Set(), detail:{ message:String(e) } });
+          resolve({ status:'exception', matched:new Set(), items:[], detail:{ message:String(e) } });
         }
       }
     });
+  }
+
+  /* pulls the title / url / snippet out of each rendered result card so the
+     semantic layer has something to read — limited to the 8 whitelisted sources,
+     because those are the only ones this project treats as evidence */
+  function collectResultItems(){
+    var cards = document.getElementById('cseTarget').querySelectorAll('.gsc-webResult.gsc-result');
+    var items = [];
+    cards.forEach(function(card){
+      var link = card.querySelector('.gs-title a, a.gs-title');
+      if (!link || !link.href) return;
+      var host = '';
+      try { host = new URL(link.href).hostname.replace(/^www\./, ''); } catch (e) { return; }
+      var source = SOURCES.filter(function(s){ return host === s.domain || host.endsWith('.' + s.domain); })[0];
+      if (!source) return;
+      var snippetEl = card.querySelector('.gs-snippet');
+      items.push({
+        title: (link.textContent || '').trim(),
+        url: link.href,
+        domain: source.domain,
+        source: source.name,
+        snippet: (snippetEl ? snippetEl.textContent : '').trim().slice(0, SNIPPET_MAX_CHARS)
+      });
+    });
+    return items.slice(0, MAX_EVIDENCE);
   }
 
   /* waits for the CSE widget itself to finish initializing (script load + explicit render) */
@@ -1138,6 +1462,144 @@
         '(Xem Console để có đoạn preview HTML đã in sẵn.) Trong lúc chờ, bấm "Xem thêm trên Google" bên dưới.'
       );
     }
+  }
+
+  /* ---------- Lớp 2: nhờ AI đọc các đoạn trích và xét quan hệ với câu gốc ---------- */
+
+  var VERDICT_META = {
+    ung_ho:            { cls:'support',    icon:'✓', label:'Bài báo ủng hộ nội dung này' },
+    mau_thuan:         { cls:'contradict', icon:'✕', label:'Bài báo mâu thuẫn với nội dung này' },
+    khong_lien_quan:   { cls:'unrelated',  icon:'~', label:'Chỉ trùng từ khóa, không cùng nội dung' },
+    khong_du_thong_tin:{ cls:'unknown',    icon:'?', label:'Đoạn trích không đủ để kết luận' }
+  };
+  function verdictMeta(v){ return VERDICT_META[v] || VERDICT_META.khong_du_thong_tin; }
+
+  function buildSemanticPrompt(claim, items){
+    var evidence = items.map(function(it, i){
+      return '[' + i + '] Nguồn: ' + it.source + ' (' + it.domain + ')\n' +
+             'Tiêu đề: ' + it.title + '\n' +
+             'Đoạn trích: ' + (it.snippet || '(không có đoạn trích)');
+    }).join('\n\n');
+
+    return 'Bạn là công cụ đối chiếu thông tin. Dưới đây là một CÂU CẦN KIỂM CHỨNG (do một AI tạo ra) ' +
+      'và các ĐOẠN TRÍCH từ kết quả tìm kiếm trên các báo điện tử chính thống Việt Nam.\n\n' +
+      'Chỉ dựa vào các đoạn trích được cung cấp, KHÔNG dùng kiến thức riêng của bạn để khẳng định hay bác bỏ. ' +
+      'Nếu đoạn trích quá ngắn hoặc không nói về cùng sự việc, hãy chọn "khong_du_thong_tin" hoặc "khong_lien_quan" thay vì đoán.\n\n' +
+      'CÂU CẦN KIỂM CHỨNG:\n' + claim + '\n\n' +
+      'CÁC ĐOẠN TRÍCH:\n' + evidence + '\n\n' +
+      'Trả về DUY NHẤT một object JSON, không thêm chữ nào khác, theo đúng cấu trúc:\n' +
+      '{"ket_luan":"ung_ho|mau_thuan|khong_lien_quan|khong_du_thong_tin",' +
+      '"do_tin_cay":<số nguyên 0-100>,' +
+      '"giai_thich":"<2-3 câu tiếng Việt, nêu rõ đoạn trích nào dẫn tới kết luận, và điểm nào chưa xác minh được>",' +
+      '"bang_chung":[{"index":<số thứ tự đoạn trích>,"quan_he":"ung_ho|mau_thuan|khong_lien_quan"}]}';
+  }
+
+  async function analyzeSemantics(claim, items){
+    var key = getApiKey();
+    if (!key) throw new Error('Chưa có khóa API.');
+    if (!items || items.length === 0) throw new Error('Không có đoạn trích nào để đọc.');
+
+    var prompt = buildSemanticPrompt(claim, items);
+    var res = null, data = null, lastErr = '';
+
+    /* thử lần lượt các model trong danh sách cho tới khi có model còn dùng được */
+    while (geminiModelIndex < GEMINI_MODELS.length) {
+      var model = GEMINI_MODELS[geminiModelIndex];
+      var body = {
+        contents: [{ role:'user', parts:[{ text: prompt }] }],
+        generationConfig: { temperature: 0.2, responseMimeType: 'application/json' }
+      };
+      /* dòng Gemini 3 bật "thinking" mặc định — tắt đi cho nhanh và đỡ tốn token,
+         vì tác vụ này chỉ là phân loại quan hệ giữa câu và đoạn trích */
+      if (model.indexOf('gemini-3') === 0) {
+        body.generationConfig.thinkingConfig = { thinkingLevel: 'minimal' };
+      }
+
+      res = await fetch(geminiUrl(model), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+        body: JSON.stringify(body)
+      });
+
+      if (res.ok) break;
+
+      var detail = '';
+      try { var errJson = await res.json(); detail = (errJson.error && errJson.error.message) || ''; } catch (e) {}
+      lastErr = detail;
+
+      // 404 = model không còn khả dụng → lùi xuống model kế tiếp rồi thử lại
+      if (res.status === 404 && geminiModelIndex < GEMINI_MODELS.length - 1) {
+        console.warn('[VeriScan] Model ' + model + ' không khả dụng, chuyển sang ' + GEMINI_MODELS[geminiModelIndex + 1]);
+        geminiModelIndex++;
+        continue;
+      }
+      if (res.status === 400 || res.status === 403) throw new Error('Khóa API bị từ chối (' + res.status + '). ' + detail);
+      if (res.status === 429) throw new Error('Đã vượt hạn ngạch Gemini trong lúc này (429). Hãy đợi một chút rồi thử lại.');
+      if (res.status === 404) throw new Error('Không model nào trong danh sách còn khả dụng. ' + detail);
+      throw new Error('Gemini trả về lỗi ' + res.status + '. ' + detail);
+    }
+
+    data = await res.json();
+    var text = '';
+    try {
+      // bỏ qua các part suy luận nội bộ (thought), chỉ lấy phần trả lời thật
+      text = data.candidates[0].content.parts
+        .filter(function(p){ return !p.thought; })
+        .map(function(p){ return p.text || ''; })
+        .join('');
+    } catch (e) {
+      throw new Error('Không đọc được phản hồi từ Gemini.');
+    }
+    if (!text.trim()) throw new Error('Gemini trả về phản hồi rỗng. ' + lastErr);
+
+    var cleaned = text.replace(/```json|```/g, '').trim();
+    var parsed;
+    try {
+      parsed = JSON.parse(cleaned);
+    } catch (e) {
+      var m = cleaned.match(/\{[\s\S]*\}/);
+      if (!m) throw new Error('Phản hồi của Gemini không phải JSON hợp lệ.');
+      parsed = JSON.parse(m[0]);
+    }
+    return parsed;
+  }
+
+  function renderSemanticCard(claim, analysis, items){
+    var meta = verdictMeta(analysis.ket_luan);
+    var evi = Array.isArray(analysis.bang_chung) ? analysis.bang_chung : [];
+
+    var eviHtml = evi.map(function(e){
+      var it = items[e.index];
+      if (!it) return '';
+      var relCls = e.quan_he === 'ung_ho' ? 'support' : (e.quan_he === 'mau_thuan' ? 'contradict' : '');
+      var relTxt = e.quan_he === 'ung_ho' ? 'ủng hộ' : (e.quan_he === 'mau_thuan' ? 'mâu thuẫn' : 'không liên quan');
+      return '<li><span class="rel ' + relCls + '">' + relTxt + '</span>' +
+             '<span><a href="' + escapeHtml(it.url) + '" target="_blank" rel="noopener">' + escapeHtml(it.title) + '</a>' +
+             ' <span style="color:var(--text-faint)">· ' + escapeHtml(it.source) + '</span></span></li>';
+    }).join('');
+
+    var conf = typeof analysis.do_tin_cay === 'number' ? ' · độ tin cậy ' + analysis.do_tin_cay + '%' : '';
+
+    return '<div class="sem-card ' + meta.cls + '">' +
+      '<span class="sem-verdict">' + meta.icon + ' ' + meta.label + conf + '</span>' +
+      '<p class="sem-claim">' + escapeHtml(claim) + '</p>' +
+      '<p class="sem-why">' + escapeHtml(analysis.giai_thich || '') + '</p>' +
+      (eviHtml ? '<ul class="sem-evi">' + eviHtml + '</ul>' : '') +
+      '</div>';
+  }
+
+  function showSemanticStatus(html){
+    var panel = document.getElementById('semanticPanel');
+    panel.classList.add('show');
+    document.getElementById('semanticBody').innerHTML = '<p class="sem-status">' + html + '</p>';
+  }
+
+  function showSemanticError(msg){
+    var panel = document.getElementById('semanticPanel');
+    panel.classList.add('show');
+    document.getElementById('semanticBody').innerHTML =
+      '<div class="sem-card unknown"><span class="sem-verdict">! Không đối chiếu được ý nghĩa</span>' +
+      '<p class="sem-why">' + escapeHtml(msg) + '</p></div>';
   }
 
   /* ---------- Quét đơn (toàn bộ nội dung, hoặc một câu do người dùng chọn) ---------- */
@@ -1212,6 +1674,20 @@
     showVerdict(result.matched);
     document.getElementById('resultsSub').textContent = result.matched.size + '/' + SOURCES.length + ' nguồn khớp';
     document.getElementById('statusLine').textContent = 'trạng thái: hoàn tất — ' + result.matched.size + '/' + SOURCES.length + ' nguồn khớp';
+
+    if (semanticEnabled() && result.items.length > 0) {
+      showSemanticStatus('<span class="spinner-ring violet"></span> AI đang đọc ' + result.items.length + ' bài báo và đối chiếu với nội dung…');
+      document.getElementById('statusLine').textContent = 'trạng thái: đang đối chiếu ý nghĩa…';
+      try {
+        var analysis = await analyzeSemantics(tuKhoa, result.items);
+        document.getElementById('semanticBody').innerHTML = renderSemanticCard(tuKhoa, analysis, result.items);
+        var m = verdictMeta(analysis.ket_luan);
+        document.getElementById('statusLine').textContent = 'trạng thái: hoàn tất — ' + result.matched.size + '/' + SOURCES.length + ' nguồn khớp · ' + m.label.toLowerCase();
+      } catch (err) {
+        console.error('[VeriScan] Lỗi đối chiếu ngữ nghĩa:', err);
+        showSemanticError(err.message || String(err));
+      }
+    }
   }
 
   /* re-runs the single-search flow for one claim the user picked from the list —
@@ -1257,8 +1733,14 @@
       return;
     }
 
+    var useSemantic = semanticEnabled();
+    var semanticCards = [];
+    if (useSemantic) {
+      showSemanticStatus('<span class="spinner-ring violet"></span> AI sẽ đọc các bài báo tìm được cho từng câu…');
+    }
+
     var unionMatched = new Set();
-    var okCount = 0, noneCount = 0, errCount = 0;
+    var okCount = 0, noneCount = 0, errCount = 0, contradictCount = 0;
 
     for (var i = 0; i < claims.length; i++) {
       setClaimStatus(i, 'busy', '<span class="spinner-ring dim" style="width:12px;height:12px;"></span>');
@@ -1280,6 +1762,26 @@
         }
         document.getElementById('cseTarget').classList.add('active');
         document.getElementById('resultsSub').textContent = 'câu ' + (i + 1) + '/' + claims.length + ' — ' + result.matched.size + '/' + SOURCES.length + ' nguồn khớp';
+
+        if (useSemantic && result.items.length > 0) {
+          setClaimMeta(i, result.matched.size + '/' + SOURCES.length + ' nguồn khớp · <span class="sem-tag">AI đang đọc…</span>');
+          try {
+            var analysis = await analyzeSemantics(claims[i], result.items);
+            var meta = verdictMeta(analysis.ket_luan);
+            if (analysis.ket_luan === 'mau_thuan') {
+              contradictCount++;
+              setClaimStatus(i, 'contradict', '✕');
+            }
+            var tagCls = analysis.ket_luan === 'mau_thuan' ? 'sem-tag bad' : 'sem-tag';
+            setClaimMeta(i, result.matched.size + '/' + SOURCES.length + ' nguồn khớp · <span class="' + tagCls + '">' + meta.label.toLowerCase() + '</span>');
+            semanticCards.push(renderSemanticCard(claims[i], analysis, result.items));
+            document.getElementById('semanticBody').innerHTML = semanticCards.join('');
+          } catch (err) {
+            console.error('[VeriScan] Lỗi đối chiếu ngữ nghĩa câu ' + (i + 1) + ':', err);
+            setClaimMeta(i, result.matched.size + '/' + SOURCES.length + ' nguồn khớp · <span class="sem-tag bad">AI không đọc được</span>');
+            if (semanticCards.length === 0) showSemanticError(err.message || String(err));
+          }
+        }
       } else {
         errCount++;
         setClaimStatus(i, 'err', '✕');
@@ -1297,6 +1799,7 @@
     var summary = document.getElementById('batchSummary');
     summary.textContent = okCount + '/' + claims.length + ' câu có nguồn đối chiếu' +
       (noneCount ? ' · ' + noneCount + ' câu không tìm thấy' : '') +
+      (contradictCount ? ' · ' + contradictCount + ' câu bị bài báo mâu thuẫn' : '') +
       (errCount ? ' · ' + errCount + ' câu gặp lỗi khi quét' : '');
     summary.classList.add('done');
 
@@ -1312,6 +1815,7 @@
         '<span class="verdict-icon">✓</span>' +
         '<span><strong>Kết quả theo từng câu</strong>' +
         okCount + '/' + claims.length + ' câu tìm thấy ít nhất một nguồn khớp từ khóa, tổng cộng ' + unionMatched.size + '/' + SOURCES.length + ' cơ quan báo chí liên quan. ' +
+        (contradictCount ? 'Có ' + contradictCount + ' câu bị bài báo tìm được mâu thuẫn — xem phần "Đối chiếu ý nghĩa" bên dưới. ' : '') +
         'Xem chi tiết từng câu ở trên và bấm "kiểm tra" lại nếu muốn xem bài viết cụ thể cho một câu.</span>';
     }
   }
@@ -1336,6 +1840,20 @@
     setBatchButtonLoading(false);
     document.getElementById('statusLine').textContent = 'trạng thái: chờ nhập nội dung';
   });
+
+  /* bật công tắc ngữ nghĩa mà chưa có khóa thì mở luôn hộp nhập khóa */
+  document.getElementById('semanticToggle').addEventListener('change', function(){
+    syncSemanticSwitch();
+    if (this.checked && !getApiKey()) moHopKhoaAPI();
+  });
+
+  (function initSemanticUi(){
+    refreshKeyUi();
+    if (getApiKey()) {
+      document.getElementById('semanticToggle').checked = true;
+      syncSemanticSwitch();
+    }
+  })();
 </script>
 
 </body>
