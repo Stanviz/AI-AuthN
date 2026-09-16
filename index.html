@@ -1436,11 +1436,11 @@
   function showDiagForStatus(status){
     if (status === 'iframe') {
       showDiag(
-        '<strong>Phát hiện Google đang vẽ kết quả bên trong một &lt;iframe&gt;.</strong> ' +
-        'Đây gần như chắc chắn là do Search Engine đang dùng layout <code>"Two Page"</code> (kiểu cũ) thay vì <code>"Full Width"</code>. ' +
-        'Vào <a href="https://programmablesearchengine.google.com/" target="_blank" rel="noopener">Programmable Search Engine</a> → ' +
-        'chọn Search Engine ID <code>57f557d01a31a4753</code> → mục <em>Look and feel → Layout</em> → đổi sang <strong>Full Width</strong>, rồi tải lại trang và thử lại. ' +
-        'Trong lúc chờ, bấm "Xem thêm trên Google" bên dưới.'
+        '<strong>Đã đạt đến giới hạn sử dụng, vui lòng đợi</strong> ' +
+        '' +
+        '' +
+        '' +
+        ''
       );
     } else if (status === 'empty') {
       showDiag(
