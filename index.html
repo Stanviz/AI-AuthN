@@ -322,6 +322,15 @@
     transition:color .25s ease;
   }
   .legend-dot{ width:7px; height:7px; border-radius:50%; background:var(--text-faint); flex-shrink:0; transition:background .25s ease; }
+  .legend-logo{
+    width:22px; height:22px; padding:4px; box-sizing:border-box; flex-shrink:0;
+    border-radius:50%; background:#eef1f5; object-fit:contain;
+    box-shadow:0 0 0 1px rgba(255,255,255,0.10);
+    filter:grayscale(1); opacity:0.4; transition:filter .25s ease, opacity .25s ease, box-shadow .25s ease;
+  }
+  .legend li{ gap:10px; }
+  .legend li.matched .legend-logo{ filter:none; opacity:1; box-shadow:0 0 0 2px var(--green); }
+  .legend li.partial .legend-logo{ filter:none; opacity:1; box-shadow:0 0 0 2px rgba(94,200,245,0.75); }
   .legend li.matched{ color:var(--green); }
   .legend li.matched .legend-dot{ background:var(--green); }
 
@@ -331,7 +340,53 @@
     font-size:0.8rem;
     color:var(--text-faint);
   }
-  .match-count.done{ color:var(--green); }
+  .match-count.done{ color:var(--text-dim); }
+
+
+  /* ---------------- Mức độ khớp (khớp mạnh / một phần) ---------------- */
+  /* Khớp một phần dùng xanh lơ (không dùng vàng, vì vàng đã là "chưa xác thực") */
+  .radar-node.partial circle{ fill:rgba(94,200,245,0.08); stroke:rgba(94,200,245,0.75); }
+  .radar-node.partial text{ fill:var(--cyan); }
+  .radar-line.partial{ stroke:rgba(94,200,245,0.5); stroke-width:1.5; stroke-dasharray:3 4; }
+  .legend li.partial{ color:#9fd3ea; }
+  .legend li.partial .legend-dot{ background:var(--cyan); }
+  .legend li.matched::after, .legend li.partial::after{
+    margin-left:auto; padding-left:8px;
+    font-family:'JetBrains Mono', monospace; font-size:0.68rem; opacity:0.8;
+  }
+  .legend li.matched::after{ content:'khớp mạnh'; }
+  .legend li.partial::after{ content:'một phần'; }
+  .match-count .mc-strong.on{ color:var(--green); }
+  .match-count .mc-partial.on{ color:var(--cyan); }
+  .verdict-banner.partial{ border:1px solid rgba(94,200,245,0.4); background:rgba(94,200,245,0.08); color:#cdeefb; }
+  .verdict-banner.partial strong{ color:var(--cyan); }
+  .claim-status.part{ background:rgba(94,200,245,0.1); border-color:rgba(94,200,245,0.7); color:var(--cyan); }
+  /* thanh độ khớp nằm dưới đoạn trích của mỗi bài */
+  .gsc-match{
+    display:flex; align-items:center; gap:8px; margin-top:10px;
+    font-family:'JetBrains Mono', monospace; font-size:0.72rem; color:var(--text-faint);
+  }
+  .gsc-match-bar{ width:56px; height:4px; border-radius:2px; background:var(--line); overflow:hidden; flex-shrink:0; }
+  .gsc-match-bar i{ display:block; height:100%; border-radius:2px; background:currentColor; }
+  .gsc-match.strong{ color:var(--green); }
+  .gsc-match.partial{ color:var(--cyan); }
+
+  /* ---------------- Ví dụ mẫu ---------------- */
+  .examples{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:14px 0 18px; }
+  .examples-label{ font-size:0.84rem; color:var(--text-faint); margin-right:2px; }
+  .chip{
+    font:inherit; font-size:0.84rem; cursor:pointer;
+    padding:5px 12px; border-radius:999px;
+    background:transparent; color:var(--text-dim, #8595a6);
+    border:1px solid var(--line, #232d3a);
+    transition:border-color .15s, color .15s;
+  }
+  .chip:hover{ border-color:var(--cyan); color:var(--cyan); }
+  .chip:focus-visible{ outline:2px solid var(--cyan); outline-offset:2px; }
+  @media (max-width:560px){
+    .examples-label{ flex:1 0 100%; }
+    .chip{ flex:1 1 calc(50% - 8px); text-align:center; }
+  }
 
   /* ---------------- Method / limitations note grid ---------------- */
   .note-grid{
@@ -650,7 +705,19 @@
     color:var(--text-faint) !important; font-family:'JetBrains Mono', monospace !important;
     font-size:0.76rem !important;
   }
-  .gsc-favicon{ width:14px; height:14px; border-radius:3px; flex-shrink:0; }
+  /* logo tròn, nền trắng ngà dịu, cùng ngôn ngữ với các nút tròn của radar */
+  .gsc-favicon{
+    width:22px; height:22px; padding:4px; box-sizing:border-box; flex-shrink:0;
+    border-radius:50%; background:#eef1f5; object-fit:contain;
+    box-shadow:0 0 0 1px rgba(255,255,255,0.10);
+  }
+  /* khi logo không tải được: hiện mã tờ báo (CP, VTV...) thay cho ảnh */
+  .logo-fallback{
+    display:inline-flex; align-items:center; justify-content:center;
+    background:var(--panel-2); color:var(--text-dim); border:1px solid var(--line);
+    font-family:'JetBrains Mono', monospace; font-size:7px; font-weight:600; letter-spacing:0;
+    border-radius:50% !important; padding:0 !important; box-shadow:none !important;
+  }
 
   .gsc-badge{
     display:inline-block;
@@ -741,6 +808,8 @@
       background:var(--panel-2);
     }
     .legend li.matched{ border-color:var(--green); background:var(--green-dim); }
+    .legend li.partial{ border-color:rgba(94,200,245,0.55); background:rgba(94,200,245,0.08); }
+    .legend li.matched::after, .legend li.partial::after{ content:none; }
 
     .claim-item{ padding:12px; gap:10px; }
     .claim-check-btn{ width:100%; padding:11px; }
@@ -815,6 +884,10 @@
           <textarea id="searchInput" aria-labelledby="inputPanelTitle" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="Nội dung"></textarea>
         </div>
       </div>
+      <div class="examples" id="exampleRow" role="group" aria-label="Ví dụ mẫu">
+        <span class="examples-label">Thử ví dụ:</span>
+      </div>
+
       <div class="btn-row">
         <button class="btn-verify" type="button" id="verifyBtn" onclick="thucHienKiemChung()">
           <span id="verifyBtnLabel">▶ Kiểm chứng</span>
@@ -860,7 +933,7 @@
 
     <div id="semanticPanel">
       <h3 class="sem-head"><span class="dot" aria-hidden="true"></span>Đối chiếu ý nghĩa</h3>
-      <p class="sem-note">Phần này do AI đọc tiêu đề và tóm tắt của các bài báo tìm được rồi so với câu cần kiểm chứng. Kết quả chỉ dựa trên đoạn trích, không phải toàn văn bài báo.</p>
+      <p class="sem-note">Phần này do bộ phân tích ngữ nghĩa (một mô hình ngôn ngữ) đọc tiêu đề và tóm tắt của các bài báo tìm được rồi so với câu cần kiểm chứng. Bộ phân tích không dùng kiến thức riêng mà chỉ dựa vào đoạn trích báo chí, và đoạn trích không phải toàn văn bài báo.</p>
       <div id="semanticBody"></div>
     </div>
 
@@ -922,6 +995,10 @@
     return 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent';
   }
   var KEY_STORAGE = 'aiauthn_gemini_key';
+  /* Dán địa chỉ Cloudflare Worker (file worker.js) vào đây để học sinh dùng AI mà không cần tự lấy khóa.
+     Để trống = quay về cách cũ: người dùng tự nhập khóa API Gemini của mình. */
+  var PROXY_URL = '';
+  function usingProxy(){ return !!PROXY_URL; }
   var MAX_EVIDENCE = 5;       // số bài báo gửi cho AI mỗi lần
   var SNIPPET_MAX_CHARS = 400;
 
@@ -930,26 +1007,46 @@
   function readStored(k){ try { return window.localStorage.getItem(k) || ''; } catch (e) { return ''; } }
   function writeStored(k, v){ try { window.localStorage.setItem(k, v); return true; } catch (e) { return false; } }
   function removeStored(k){ try { window.localStorage.removeItem(k); } catch (e) {} }
+  /* sessionStorage: tự xóa khi đóng tab — mặc định dùng cái này để an toàn trên máy dùng chung */
+  function readSession(k){ try { return window.sessionStorage.getItem(k) || ''; } catch (e) { return ''; } }
+  function writeSession(k, v){ try { window.sessionStorage.setItem(k, v); return true; } catch (e) { return false; } }
+  function removeSession(k){ try { window.sessionStorage.removeItem(k); } catch (e) {} }
 
   var apiKeyMemory = '';   // dự phòng khi không ghi được localStorage
-  function getApiKey(){ return apiKeyMemory || readStored(KEY_STORAGE); }
+  function getApiKey(){ return apiKeyMemory || readSession(KEY_STORAGE) || readStored(KEY_STORAGE); }
 
   function refreshKeyUi(){
     var has = !!getApiKey();
+    var keyBtn = document.getElementById('keyBtn');
+    var hint = document.getElementById('semanticHint');
+    if (usingProxy()) {
+      keyBtn.style.display = 'none';
+      if (hint) hint.textContent = 'Phân tích ngữ nghĩa do dự án cung cấp nên không cần khóa API. Số lượt dùng mỗi ngày có giới hạn.';
+      return;
+    }
+    keyBtn.style.display = '';
     document.getElementById('keyState').classList.toggle('set', has);
     document.getElementById('keyBtnLabel').textContent = has ? 'Đã có API' : 'Thêm API';
+    if (hint) hint.textContent = has
+      ? 'Bộ phân tích sẽ đọc đoạn trích bài báo và đối chiếu ý nghĩa với câu của bạn.'
+      : 'Tùy chọn: không bật vẫn kiểm chứng được. Muốn phân tích ngữ nghĩa thì cần một khóa API miễn phí của Google (khoảng 2 phút để lấy).';
   }
 
   function moHopKhoaAPI(){
     var current = getApiKey();
+    var persisted = !!readStored(KEY_STORAGE);
     Swal.fire({
-      title: current ? 'API' : 'Thêm API',
+      title: current ? 'Khóa API Gemini' : 'Thêm khóa API Gemini',
       html:
-        '<p style="font-size:0.88rem;line-height:1.6;color:#8595a6;text-align:left;margin:0 0 12px">' +
-        'Lấy API tại <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="color:#5ec8f5">Google AI Studio</a>. ' +
-        '' +
-        '' +
-        '</p>',
+        '<ol style="text-align:left;font-size:0.88rem;line-height:1.7;color:#8595a6;margin:0 0 10px;padding-left:20px">' +
+        '<li>Mở <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="color:#5ec8f5">Google AI Studio</a> và đăng nhập bằng tài khoản Google.</li>' +
+        '<li>Bấm <b>Create API key</b>, rồi sao chép chuỗi bắt đầu bằng <code>AIza</code>.</li>' +
+        '<li>Dán vào ô bên dưới.</li></ol>' +
+        '<p style="font-size:0.82rem;line-height:1.6;color:#8595a6;text-align:left;margin:0 0 10px">' +
+        'Khóa chỉ nằm trong trình duyệt này và được gửi thẳng tới Google, không đi qua máy chủ của dự án.</p>' +
+        '<label style="display:flex;gap:8px;align-items:flex-start;text-align:left;font-size:0.84rem;color:#8595a6;cursor:pointer">' +
+        '<input type="checkbox" id="rememberKey"' + (persisted ? ' checked' : '') + ' style="margin-top:3px">' +
+        '<span>Ghi nhớ trên máy này. Đừng bật nếu đây là máy dùng chung.</span></label>',
       input: 'password',
       inputValue: current,
       inputPlaceholder: 'AIza...',
@@ -963,20 +1060,31 @@
       color: '#e9eef3',
       confirmButtonColor: '#a98bf5',
       denyButtonColor: '#4a1e23',
-      cancelButtonColor: '#232d3a'
+      cancelButtonColor: '#232d3a',
+      preConfirm: function(v){
+        var key = (v || '').trim();
+        if (!key) { Swal.showValidationMessage('Hãy dán khóa API vào ô trên.'); return false; }
+        var cb = Swal.getPopup().querySelector('#rememberKey');
+        return { key: key, remember: !!(cb && cb.checked) };
+      }
     }).then(function(res){
-      if (res.isConfirmed) {
-        var k = (res.value || '').trim();
-        if (!k) return;
-        apiKeyMemory = k;
-        writeStored(KEY_STORAGE, k);
+      if (res.isConfirmed && res.value) {
+        apiKeyMemory = res.value.key;
+        removeStored(KEY_STORAGE);
+        removeSession(KEY_STORAGE);
+        if (res.value.remember) writeStored(KEY_STORAGE, res.value.key);
+        else writeSession(KEY_STORAGE, res.value.key);
         refreshKeyUi();
         document.getElementById('semanticToggle').checked = true;
         syncSemanticSwitch();
       } else if (res.isDenied) {
         apiKeyMemory = '';
         removeStored(KEY_STORAGE);
+        removeSession(KEY_STORAGE);
         refreshKeyUi();
+      }
+      /* đóng hộp thoại mà vẫn chưa có khóa thì tắt công tắc, tránh bật mà không chạy */
+      if (!getApiKey()) {
         document.getElementById('semanticToggle').checked = false;
         syncSemanticSwitch();
       }
@@ -989,7 +1097,7 @@
   }
 
   function semanticEnabled(){
-    return document.getElementById('semanticToggle').checked && !!getApiKey();
+    return document.getElementById('semanticToggle').checked && (usingProxy() || !!getApiKey());
   }
 
   /* ---------- Build radar SVG + legend from SOURCES ---------- */
@@ -1036,23 +1144,50 @@
 
       var li = document.createElement('li');
       li.id = 'legend-' + i;
-      li.innerHTML = '<span class="legend-dot"></span>' + s.name;
+      li.appendChild(sourceLogo(s.domain, 'legend-logo'));
+      var nameEl = document.createElement('span');
+      nameEl.textContent = s.name;
+      li.appendChild(nameEl);
       legend.appendChild(li);
     });
   })();
 
+  /* logo tờ báo: thử Google, rồi DuckDuckGo, cuối cùng hiện mã viết tắt */
+  function sourceLogo(domain, cls){
+    var src = SOURCES.filter(function(x){ return domain === x.domain || domain.endsWith('.' + x.domain); })[0];
+    var urls = [
+      'https://www.google.com/s2/favicons?sz=64&domain=' + encodeURIComponent(domain),
+      'https://icons.duckduckgo.com/ip3/' + domain + '.ico'
+    ];
+    var tried = 0;
+    var img = document.createElement('img');
+    img.className = cls;
+    img.alt = '';
+    img.decoding = 'async';
+    img.src = urls[0];
+    img.onerror = function(){
+      tried++;
+      if (tried < urls.length) { img.src = urls[tried]; return; }
+      var fb = document.createElement('span');
+      fb.className = cls + ' logo-fallback';
+      fb.textContent = src ? src.short : domain.charAt(0).toUpperCase();
+      if (img.parentNode) img.parentNode.replaceChild(fb, img);
+    };
+    return img;
+  }
+
   function resetRadar(){
     SOURCES.forEach(function(s, i){
-      document.getElementById('node-'+i).classList.remove('matched');
-      document.getElementById('line-'+i).classList.remove('matched');
-      document.getElementById('legend-'+i).classList.remove('matched');
+      ['node-', 'line-', 'legend-'].forEach(function(p){
+        document.getElementById(p + i).classList.remove('matched', 'partial');
+      });
     });
     document.getElementById('centerNode').classList.remove('scanning');
     var mc = document.getElementById('matchCount');
     mc.textContent = 'chưa quét';
     mc.classList.remove('done');
     var vb = document.getElementById('verdictBanner');
-    vb.classList.remove('show', 'verified', 'unverified');
+    vb.classList.remove('show', 'verified', 'unverified', 'partial');
     vb.innerHTML = '';
     var cp = document.getElementById('claimsPanel');
     cp.classList.remove('show');
@@ -1069,19 +1204,29 @@
     document.getElementById('matchCount').textContent = 'đang quét…';
   }
 
-  function applyMatches(matchedSet){
+  function matchLabel(strong, partial){
+    return strong.size + '/' + SOURCES.length + ' nguồn khớp mạnh' +
+           (partial && partial.size ? ' · ' + partial.size + ' khớp một phần' : '');
+  }
+
+  function applyMatches(strong, partial){
+    partial = partial || new Set();
     document.getElementById('centerNode').classList.remove('scanning');
     SOURCES.forEach(function(s, i){
-      if (matchedSet.has(s.domain)) {
-        document.getElementById('node-'+i).classList.add('matched');
-        document.getElementById('line-'+i).classList.add('matched');
-        document.getElementById('legend-'+i).classList.add('matched');
-      }
+      var cls = strong.has(s.domain) ? 'matched' : (partial.has(s.domain) ? 'partial' : '');
+      ['node-', 'line-', 'legend-'].forEach(function(p){
+        var el = document.getElementById(p + i);
+        el.classList.remove('matched', 'partial');
+        if (cls) el.classList.add(cls);
+      });
     });
     var mc = document.getElementById('matchCount');
-    mc.textContent = matchedSet.size + '/' + SOURCES.length + ' nguồn khớp';
+    mc.innerHTML =
+      '<span class="mc-strong' + (strong.size ? ' on' : '') + '">' + strong.size + '/' + SOURCES.length + ' nguồn khớp mạnh</span>' +
+      (partial.size ? ' · <span class="mc-partial on">' + partial.size + ' khớp một phần</span>' : '');
     mc.classList.add('done');
   }
+
 
   function detectMatchedSources(){
     var matched = new Set();
@@ -1178,6 +1323,8 @@
   var scriptFailedToLoad = false;
   var isFileProtocol = (window.location.protocol === 'file:');
   var currentQueryWords = [];
+  var currentQuery = '';
+  var currentClaims = [];
 
   window.__gcse = {
     parsetags: 'explicit',
@@ -1261,10 +1408,7 @@
 
       var isOfficial = SOURCES.some(function(s){ return host === s.domain || host.endsWith('.' + s.domain); });
 
-      var favicon = document.createElement('img');
-      favicon.className = 'gsc-favicon';
-      favicon.src = 'https://www.google.com/s2/favicons?sz=64&domain=' + encodeURIComponent(host);
-      favicon.alt = '';
+      var favicon = sourceLogo(host, 'gsc-favicon');
       var urlLine = card.querySelector('.gsc-url-top, .gs-visibleUrl');
       if (urlLine) urlLine.insertAdjacentElement('afterbegin', favicon);
 
@@ -1277,6 +1421,15 @@
       }
 
       var snippet = card.querySelector('.gs-snippet');
+      var rel = scoreBest(currentClaims, titleLink.textContent + ' ' + (snippet ? snippet.textContent : ''));
+      var pct = Math.round(rel.score * 100);
+      var meter = document.createElement('div');
+      meter.className = 'gsc-match ' + rel.level;
+      meter.innerHTML = '<span class="gsc-match-bar"><i style="width:' + Math.min(100, pct) + '%"></i></span>' +
+                        '<span>độ khớp ' + pct + '% · ' + LEVEL_LABEL[rel.level] + '</span>';
+      var twEl = card.querySelector('.gs-title');
+      var meterHost = snippet ? snippet.parentElement : (twEl ? twEl.parentElement : null);
+      if (meterHost) meterHost.appendChild(meter);
       if (snippet && currentQueryWords.length > 0) {
         highlightWordsInElement(snippet, currentQueryWords);
       }
@@ -1309,24 +1462,105 @@
     el.innerHTML = html;
   }
 
-  function showVerdict(matched){
+  /* ---------- Chấm độ khớp cho từng bài báo ----------
+     Trước đây chỉ cần một bài bất kì của một tờ báo hiện ra là tính "khớp".
+     Bây giờ mỗi bài được chấm bằng đoạn trích + tiêu đề của chính nó:
+       - tỉ lệ từ khóa của câu xuất hiện (60%) và tỉ lệ cặp từ liền kề, ví dụ "gia nhập" (40%)
+       - mọi con số trong câu (năm, số lượng, phần trăm...) phải có mặt, nếu thiếu thì chỉ được "khớp một phần"
+     Hai ngưỡng bên dưới là giả định ban đầu; nên chỉnh lại bằng bộ câu kiểm thử có gán nhãn. */
+  var MATCH_STRONG = 0.6;
+  var MATCH_PARTIAL = 0.35;
+  var LEVEL_LABEL = { strong:'khớp mạnh', partial:'khớp một phần', weak:'ít liên quan' };
+  var STOPWORDS = new Set(('của và là có được trong cho với các những một này đó khi đã sẽ đang từ tại về theo như nhưng ' +
+    'để không cũng rất thì mà nên vì do bởi hay hoặc ra vào lên xuống trên dưới sau trước năm tháng ngày bị cả mọi ' +
+    'còn đều chỉ vẫn lại thế nào gì ai đây kia ấy nếu tuy dù').split(' '));
+
+  function tokenizeVi(text){
+    return String(text || '').normalize('NFC').toLowerCase().match(/[\p{L}\p{N}]+(?:[.,][\p{N}]+)*/gu) || [];
+  }
+  function isNumToken(t){ return /^[\p{N}]+(?:[.,][\p{N}]+)*$/u.test(t); }
+  function normTok(t){ return isNumToken(t) ? t.replace(/[.,]/g, '') : t; }
+
+  function scoreRelevance(claim, docText){
+    var q = tokenizeVi(claim);
+    var d = tokenizeVi(docText).map(normTok);
+    var dSet = new Set(d);
+    var dJoined = ' ' + d.join(' ') + ' ';
+
+    var words = [], nums = [], bigrams = [];
+    function isContent(t){ return !isNumToken(t) && t.length >= 2 && !STOPWORDS.has(t); }
+    q.forEach(function(t, i){
+      if (isNumToken(t)) { var n = normTok(t); if (nums.indexOf(n) < 0) nums.push(n); }
+      else if (isContent(t) && words.indexOf(t) < 0) words.push(t);
+      if (i < q.length - 1 && isContent(t) && isContent(q[i + 1])) {
+        var bg = t + ' ' + q[i + 1];
+        if (bigrams.indexOf(bg) < 0) bigrams.push(bg);
+      }
+    });
+
+    if (words.length === 0) return { score:0, level:'weak', reason:'' };
+
+    var uni = words.filter(function(w){ return dSet.has(w); }).length / words.length;
+    var bi = bigrams.length
+      ? bigrams.filter(function(b){ return dJoined.indexOf(' ' + b + ' ') > -1; }).length / bigrams.length
+      : uni;
+    var coverage = 0.6 * uni + 0.4 * bi;
+    var missing = nums.filter(function(n){ return !dSet.has(n); });
+
+    var level = 'weak', reason = '';
+    if (coverage >= MATCH_STRONG && missing.length === 0) level = 'strong';
+    else if (coverage >= MATCH_PARTIAL) {
+      level = 'partial';
+      reason = missing.length
+        ? 'Đoạn trích gần nhất không chứa số liệu “' + missing.join('”, “') + '” có trong nội dung.'
+        : 'Đoạn trích chỉ chứa một phần các từ khóa chính của nội dung.';
+    }
+    return { score:coverage, level:level, reason:reason };
+  }
+
+  /* với đoạn nhiều câu: chấm theo câu khớp nhất */
+  function scoreBest(claims, docText){
+    var list = (claims && claims.length) ? claims : [''];
+    var best = null;
+    list.forEach(function(c, idx){
+      var r = scoreRelevance(c, docText);
+      r.claimIndex = idx;
+      if (!best || r.score > best.score || (r.score === best.score && r.level === 'strong')) best = r;
+    });
+    return best;
+  }
+
+  function showVerdict(strong, partial, items, nClaims){
+    partial = partial || new Set();
+    var best = items && items[0];
     var vb = document.getElementById('verdictBanner');
-    if (matched.size === 0) {
+    if (strong.size > 0) {
+      vb.className = 'verdict-banner show verified';
+      vb.innerHTML =
+        '<span class="verdict-icon">✓</span>' +
+        '<span><strong>Tìm thấy bài báo khớp với nội dung</strong>' +
+        strong.size + '/' + SOURCES.length + ' cơ quan báo chí có bài khớp mạnh (đủ từ khóa, tên riêng và số liệu trong đoạn trích). ' +
+        (nClaims > 1 ? 'Mức khớp tính theo câu khớp nhất, các câu còn lại có thể chưa được kiểm chứng — bấm "Kiểm tra từng câu" để xem riêng. ' : '') +
+        'Hãy đọc bài gốc để tự đối chiếu: khớp từ khóa chưa chắc đồng nghĩa với nội dung chính xác.</span>';
+    } else if (partial.size > 0) {
+      vb.className = 'verdict-banner show partial';
+      vb.innerHTML =
+        '<span class="verdict-icon">≈</span>' +
+        '<span><strong>Chỉ khớp một phần</strong>' +
+        'Có bài liên quan ở ' + partial.size + ' cơ quan báo chí nhưng chưa khớp đủ chi tiết. ' +
+        (best && best.reason ? escapeHtml(best.reason) + ' ' : '') +
+        (best ? 'Bài gần nhất: ' + escapeHtml(best.title) + ' (' + escapeHtml(best.source) + ', độ khớp ' + Math.round(best.score * 100) + '%). ' : '') +
+        'Đây là dấu hiệu cần kiểm tra kĩ số liệu, mốc thời gian và tên riêng trong nội dung AI đưa ra.</span>';
+    } else {
       vb.className = 'verdict-banner show unverified';
       vb.innerHTML =
         '<span class="verdict-icon">⚠</span>' +
         '<span><strong>Nội dung chưa được xác thực</strong>' +
-        'Không có nguồn báo chí chính thống nào trong danh sách đối chiếu đề cập đến nội dung này. ' +
+        'Không có bài nào trong 8 nguồn đối chiếu khớp đủ với nội dung này. ' +
         'Đây có thể là thông tin sai lệch, bị AI "ảo giác", hoặc đơn giản là chưa được báo chí đưa tin — hãy thận trọng trước khi tin và chia sẻ.</span>';
-    } else {
-      vb.className = 'verdict-banner show verified';
-      vb.innerHTML =
-        '<span class="verdict-icon">✓</span>' +
-        '<span><strong>Đã tìm thấy nguồn đối chiếu</strong>' +
-        matched.size + '/' + SOURCES.length + ' cơ quan báo chí chính thống có bài viết khớp từ khóa với nội dung này. ' +
-        'Bấm vào kết quả bên dưới để đọc trực tiếp và tự đối chiếu chi tiết — trùng từ khóa không đồng nghĩa với nội dung hoàn toàn chính xác.</span>';
     }
   }
+
 
   /* ---------- Lõi tìm kiếm dùng chung cho quét đơn lẻ và quét theo lô ---------- */
 
@@ -1350,9 +1584,17 @@
         clearTimeout(timer);
         localObserver.disconnect();
         currentQueryWords = extractQueryWords(query);
+        currentQuery = query;
+        currentClaims = splitIntoClaims(query);
         enrichResultCards();
-        var matched = detectMatchedSources();
-        resolve({ status:'ok', matched:matched, items:collectResultItems() });
+        var all = collectResultItems(query);
+        var strong = new Set(), partial = new Set();
+        all.forEach(function(it){
+          if (it.level === 'strong') strong.add(it.domain);
+          else if (it.level === 'partial') partial.add(it.domain);
+        });
+        strong.forEach(function(d){ partial.delete(d); });
+        resolve({ status:'ok', matched:strong, partial:partial, items:all.slice(0, MAX_EVIDENCE), nClaims:currentClaims.length });
       }
 
       timer = setTimeout(function(){
@@ -1360,7 +1602,7 @@
         settled = true;
         localObserver.disconnect();
         var diag = diagnoseStuckSearchState();
-        resolve({ status:diag.status, matched:new Set(), items:[], detail:diag });
+        resolve({ status:diag.status, matched:new Set(), partial:new Set(), items:[], detail:diag });
       }, timeoutMs || SEARCH_TIMEOUT_MS);
 
       try {
@@ -1370,7 +1612,7 @@
           settled = true;
           clearTimeout(timer);
           localObserver.disconnect();
-          resolve({ status:'exception', matched:new Set(), items:[], detail:{ message:String(e) } });
+          resolve({ status:'exception', matched:new Set(), partial:new Set(), items:[], detail:{ message:String(e) } });
         }
       }
     });
@@ -1379,7 +1621,8 @@
   /* pulls the title / url / snippet out of each rendered result card so the
      semantic layer has something to read — limited to the 8 whitelisted sources,
      because those are the only ones this project treats as evidence */
-  function collectResultItems(){
+  function collectResultItems(query){
+    var claims = splitIntoClaims(query || '');
     var cards = document.getElementById('cseTarget').querySelectorAll('.gsc-webResult.gsc-result');
     var items = [];
     cards.forEach(function(card){
@@ -1390,15 +1633,23 @@
       var source = SOURCES.filter(function(s){ return host === s.domain || host.endsWith('.' + s.domain); })[0];
       if (!source) return;
       var snippetEl = card.querySelector('.gs-snippet');
+      var title = (link.textContent || '').trim();
+      var fullSnippet = (snippetEl ? snippetEl.textContent : '').trim();
+      var rel = scoreBest(claims, title + ' ' + fullSnippet);
       items.push({
-        title: (link.textContent || '').trim(),
+        title: title,
         url: link.href,
         domain: source.domain,
         source: source.name,
-        snippet: (snippetEl ? snippetEl.textContent : '').trim().slice(0, SNIPPET_MAX_CHARS)
+        snippet: fullSnippet.slice(0, SNIPPET_MAX_CHARS),
+        score: rel.score,
+        level: rel.level,
+        reason: rel.reason
       });
     });
-    return items.slice(0, MAX_EVIDENCE);
+    /* bài khớp nhất lên đầu, để AI và banner đọc những bài sát nhất trước */
+    items.sort(function(a, b){ return b.score - a.score; });
+    return items;
   }
 
   /* waits for the CSE widget itself to finish initializing (script load + explicit render) */
@@ -1496,7 +1747,7 @@
 
   async function analyzeSemantics(claim, items){
     var key = getApiKey();
-    if (!key) throw new Error('Chưa có khóa API.');
+    if (!usingProxy() && !key) throw new Error('Chưa có khóa API.');
     if (!items || items.length === 0) throw new Error('Không có đoạn trích nào để đọc.');
 
     var prompt = buildSemanticPrompt(claim, items);
@@ -1515,9 +1766,16 @@
         body.generationConfig.thinkingConfig = { thinkingLevel: 'minimal' };
       }
 
-      res = await fetch(geminiUrl(model), {
+      var reqUrl = geminiUrl(model);
+      var reqHeaders = { 'Content-Type': 'application/json' };
+      if (usingProxy()) {
+        reqUrl = PROXY_URL + (PROXY_URL.indexOf('?') > -1 ? '&' : '?') + 'model=' + encodeURIComponent(model);
+      } else {
+        reqHeaders['x-goog-api-key'] = key;
+      }
+      res = await fetch(reqUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+        headers: reqHeaders,
         body: JSON.stringify(body)
       });
 
@@ -1578,10 +1836,14 @@
              ' <span style="color:var(--text-faint)">· ' + escapeHtml(it.source) + '</span></span></li>';
     }).join('');
 
-    var conf = typeof analysis.do_tin_cay === 'number' ? ' · độ tin cậy ' + analysis.do_tin_cay + '%' : '';
+    /* do_tin_cay là mức AI tự tin vào KẾT LUẬN CỦA CHÍNH NÓ, không phải xác suất câu đó đúng.
+       Với "không liên quan" / "không đủ thông tin" con số này vô nghĩa và gây hiểu nhầm, nên ẩn đi. */
+    var showConf = (analysis.ket_luan === 'ung_ho' || analysis.ket_luan === 'mau_thuan') && typeof analysis.do_tin_cay === 'number';
+    var conf = showConf ? ' · độ chắc chắn ~' + analysis.do_tin_cay + '%' : '';
+    var confTip = showConf ? ' title="Con số do bộ phân tích tự ước lượng về kết luận của nó, không phải xác suất nội dung đúng hay sai."' : '';
 
     return '<div class="sem-card ' + meta.cls + '">' +
-      '<span class="sem-verdict">' + meta.icon + ' ' + meta.label + conf + '</span>' +
+      '<span class="sem-verdict"' + confTip + '>' + meta.icon + ' ' + meta.label + conf + '</span>' +
       '<p class="sem-claim">' + escapeHtml(claim) + '</p>' +
       '<p class="sem-why">' + escapeHtml(analysis.giai_thich || '') + '</p>' +
       (eviHtml ? '<ul class="sem-evi">' + eviHtml + '</ul>' : '') +
@@ -1670,19 +1932,19 @@
     }
 
     document.getElementById('cseTarget').classList.add('active');
-    applyMatches(result.matched);
-    showVerdict(result.matched);
-    document.getElementById('resultsSub').textContent = result.matched.size + '/' + SOURCES.length + ' nguồn khớp';
-    document.getElementById('statusLine').textContent = 'trạng thái: hoàn tất — ' + result.matched.size + '/' + SOURCES.length + ' nguồn khớp';
+    applyMatches(result.matched, result.partial);
+    showVerdict(result.matched, result.partial, result.items, result.nClaims);
+    document.getElementById('resultsSub').textContent = matchLabel(result.matched, result.partial);
+    document.getElementById('statusLine').textContent = 'trạng thái: hoàn tất — ' + matchLabel(result.matched, result.partial);
 
     if (semanticEnabled() && result.items.length > 0) {
-      showSemanticStatus('<span class="spinner-ring violet"></span> AI đang đọc ' + result.items.length + ' bài báo và đối chiếu với nội dung…');
+      showSemanticStatus('<span class="spinner-ring violet"></span> Đang đọc ' + result.items.length + ' bài báo và đối chiếu với nội dung…');
       document.getElementById('statusLine').textContent = 'trạng thái: đang đối chiếu ý nghĩa…';
       try {
         var analysis = await analyzeSemantics(tuKhoa, result.items);
         document.getElementById('semanticBody').innerHTML = renderSemanticCard(tuKhoa, analysis, result.items);
         var m = verdictMeta(analysis.ket_luan);
-        document.getElementById('statusLine').textContent = 'trạng thái: hoàn tất — ' + result.matched.size + '/' + SOURCES.length + ' nguồn khớp · ' + m.label.toLowerCase();
+        document.getElementById('statusLine').textContent = 'trạng thái: hoàn tất — ' + matchLabel(result.matched, result.partial) + ' · ' + m.label.toLowerCase();
       } catch (err) {
         console.error('[VeriScan] Lỗi đối chiếu ngữ nghĩa:', err);
         showSemanticError(err.message || String(err));
@@ -1736,11 +1998,11 @@
     var useSemantic = semanticEnabled();
     var semanticCards = [];
     if (useSemantic) {
-      showSemanticStatus('<span class="spinner-ring violet"></span> AI sẽ đọc các bài báo tìm được cho từng câu…');
+      showSemanticStatus('<span class="spinner-ring violet"></span> Sẽ đọc các bài báo tìm được cho từng câu…');
     }
 
-    var unionMatched = new Set();
-    var okCount = 0, noneCount = 0, errCount = 0, contradictCount = 0;
+    var unionMatched = new Set(), unionPartial = new Set();
+    var okCount = 0, partialCount = 0, noneCount = 0, errCount = 0, contradictCount = 0;
 
     for (var i = 0; i < claims.length; i++) {
       setClaimStatus(i, 'busy', '<span class="spinner-ring dim" style="width:12px;height:12px;"></span>');
@@ -1751,20 +2013,26 @@
 
       if (result.status === 'ok') {
         result.matched.forEach(function(d){ unionMatched.add(d); });
+        result.partial.forEach(function(d){ unionPartial.add(d); });
+        var claimLabel = matchLabel(result.matched, result.partial);
         if (result.matched.size > 0) {
           okCount++;
           setClaimStatus(i, 'ok', '✓');
-          setClaimMeta(i, result.matched.size + '/' + SOURCES.length + ' nguồn khớp');
+          setClaimMeta(i, claimLabel);
+        } else if (result.partial.size > 0) {
+          partialCount++;
+          setClaimStatus(i, 'part', '≈');
+          setClaimMeta(i, claimLabel + ' — kiểm tra lại số liệu, tên riêng');
         } else {
           noneCount++;
           setClaimStatus(i, 'none', '⚠');
           setClaimMeta(i, 'không tìm thấy nguồn khớp');
         }
         document.getElementById('cseTarget').classList.add('active');
-        document.getElementById('resultsSub').textContent = 'câu ' + (i + 1) + '/' + claims.length + ' — ' + result.matched.size + '/' + SOURCES.length + ' nguồn khớp';
+        document.getElementById('resultsSub').textContent = 'câu ' + (i + 1) + '/' + claims.length + ' — ' + claimLabel;
 
         if (useSemantic && result.items.length > 0) {
-          setClaimMeta(i, result.matched.size + '/' + SOURCES.length + ' nguồn khớp · <span class="sem-tag">AI đang đọc…</span>');
+          setClaimMeta(i, claimLabel + ' · <span class="sem-tag">đang phân tích…</span>');
           try {
             var analysis = await analyzeSemantics(claims[i], result.items);
             var meta = verdictMeta(analysis.ket_luan);
@@ -1773,12 +2041,12 @@
               setClaimStatus(i, 'contradict', '✕');
             }
             var tagCls = analysis.ket_luan === 'mau_thuan' ? 'sem-tag bad' : 'sem-tag';
-            setClaimMeta(i, result.matched.size + '/' + SOURCES.length + ' nguồn khớp · <span class="' + tagCls + '">' + meta.label.toLowerCase() + '</span>');
+            setClaimMeta(i, claimLabel + ' · <span class="' + tagCls + '">' + meta.label.toLowerCase() + '</span>');
             semanticCards.push(renderSemanticCard(claims[i], analysis, result.items));
             document.getElementById('semanticBody').innerHTML = semanticCards.join('');
           } catch (err) {
             console.error('[VeriScan] Lỗi đối chiếu ngữ nghĩa câu ' + (i + 1) + ':', err);
-            setClaimMeta(i, result.matched.size + '/' + SOURCES.length + ' nguồn khớp · <span class="sem-tag bad">AI không đọc được</span>');
+            setClaimMeta(i, claimLabel + ' · <span class="sem-tag bad">không phân tích được</span>');
             if (semanticCards.length === 0) showSemanticError(err.message || String(err));
           }
         }
@@ -1788,7 +2056,7 @@
         setClaimMeta(i, 'lỗi khi quét (xem Console)');
       }
 
-      applyMatches(unionMatched);
+      applyMatches(unionMatched, unionPartial);
 
       if (i < claims.length - 1) await sleep(BATCH_DELAY_MS);
     }
@@ -1797,28 +2065,65 @@
     document.getElementById('loadingSkeleton').classList.remove('active');
 
     var summary = document.getElementById('batchSummary');
-    summary.textContent = okCount + '/' + claims.length + ' câu có nguồn đối chiếu' +
+    summary.textContent = okCount + '/' + claims.length + ' câu có nguồn khớp mạnh' +
+      (partialCount ? ' · ' + partialCount + ' câu chỉ khớp một phần' : '') +
       (noneCount ? ' · ' + noneCount + ' câu không tìm thấy' : '') +
       (contradictCount ? ' · ' + contradictCount + ' câu bị bài báo mâu thuẫn' : '') +
       (errCount ? ' · ' + errCount + ' câu gặp lỗi khi quét' : '');
     summary.classList.add('done');
 
     document.getElementById('statusLine').textContent =
-      'trạng thái: hoàn tất quét theo câu — ' + okCount + '/' + claims.length + ' câu có nguồn, ' + unionMatched.size + '/' + SOURCES.length + ' nguồn tổng hợp';
+      'trạng thái: hoàn tất quét theo câu — ' + okCount + '/' + claims.length + ' câu có nguồn khớp mạnh, ' + unionMatched.size + '/' + SOURCES.length + ' nguồn tổng hợp';
 
     if (unionMatched.size === 0) {
-      showVerdict(new Set());
+      showVerdict(new Set(), unionPartial, [], claims.length);
     } else {
       var vb = document.getElementById('verdictBanner');
       vb.className = 'verdict-banner show verified';
       vb.innerHTML =
         '<span class="verdict-icon">✓</span>' +
         '<span><strong>Kết quả theo từng câu</strong>' +
-        okCount + '/' + claims.length + ' câu tìm thấy ít nhất một nguồn khớp từ khóa, tổng cộng ' + unionMatched.size + '/' + SOURCES.length + ' cơ quan báo chí liên quan. ' +
+        okCount + '/' + claims.length + ' câu có bài báo khớp mạnh, tổng cộng ' + unionMatched.size + '/' + SOURCES.length + ' cơ quan báo chí. ' +
+        (partialCount ? partialCount + ' câu chỉ khớp một phần (thường do lệch số liệu hoặc tên riêng). ' : '') +
+        (noneCount ? noneCount + ' câu chưa tìm thấy nguồn nào. ' : '') +
         (contradictCount ? 'Có ' + contradictCount + ' câu bị bài báo tìm được mâu thuẫn — xem phần "Đối chiếu ý nghĩa" bên dưới. ' : '') +
         'Xem chi tiết từng câu ở trên và bấm "kiểm tra" lại nếu muốn xem bài viết cụ thể cho một câu.</span>';
     }
   }
+
+  /* ---------- Ví dụ mẫu: điền sẵn nội dung để thử ngay ---------- */
+  var EXAMPLES = [
+    { label:'Thông tin đúng',   text:'Việt Nam gia nhập ASEAN vào năm 1995.' },
+    { label:'Sai một chi tiết', text:'Việt Nam gia nhập ASEAN vào năm 2005.' },
+    { label:'Nội dung bịa',     text:'Sông Mê Kông chảy qua thủ đô Hà Nội rồi đổ ra biển ở Hải Phòng.' },
+    { label:'Nhiều câu',        text:'Việt Nam gia nhập ASEAN vào năm 1995. Thủ đô của Việt Nam là Thành phố Hồ Chí Minh. Hà Nội nằm ở miền Bắc Việt Nam.' }
+  ];
+
+  (function initExamples(){
+    var row = document.getElementById('exampleRow');
+    if (!row) return;
+    EXAMPLES.forEach(function(ex){
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'chip';
+      btn.textContent = ex.label;
+      btn.addEventListener('click', function(){
+        var input = document.getElementById('searchInput');
+        input.value = ex.text;
+        input.focus();
+        /* xóa kết quả cũ để không lẫn với ví dụ mới */
+        resetRadar();
+        hideDiag();
+        document.getElementById('resultsWrapper').classList.remove('open');
+        document.getElementById('cseTarget').classList.remove('active');
+        var multi = splitIntoClaims(ex.text).length > 1;
+        document.getElementById('statusLine').textContent =
+          'trạng thái: đã điền ví dụ "' + ex.label.toLowerCase() + '" — bấm ' +
+          (multi ? '"Kiểm tra từng câu"' : '"Kiểm chứng"') + ' (kết quả phụ thuộc bài báo hiện có trên mạng)';
+      });
+      row.appendChild(btn);
+    });
+  })();
 
   document.getElementById('searchInput').addEventListener('keydown', function(event){
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -1844,12 +2149,12 @@
   /* bật công tắc ngữ nghĩa mà chưa có khóa thì mở luôn hộp nhập khóa */
   document.getElementById('semanticToggle').addEventListener('change', function(){
     syncSemanticSwitch();
-    if (this.checked && !getApiKey()) moHopKhoaAPI();
+    if (this.checked && !usingProxy() && !getApiKey()) moHopKhoaAPI();
   });
 
   (function initSemanticUi(){
     refreshKeyUi();
-    if (getApiKey()) {
+    if (usingProxy() || getApiKey()) {
       document.getElementById('semanticToggle').checked = true;
       syncSemanticSwitch();
     }
