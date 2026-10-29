@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Đối chiếu thông tin AI với báo chí Việt Nam</title>
+<title>Đối chiếu thông tin với báo chí Việt Nam</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -245,6 +245,27 @@
     border:1px solid var(--line);
   }
   .btn-secondary:hover{ color:var(--cyan); border-color:var(--cyan); }
+  .btn-secondary.examples-toggle{
+    width:fit-content;
+    min-height:0;
+    flex-shrink:0;
+    margin:0 0 0 auto;
+    padding:5px 9px;
+    border-radius:8px;
+    font-family:'Be Vietnam Pro', sans-serif;
+    font-size:0.74rem;
+    font-weight:500;
+    gap:8px;
+  }
+  .examples-toggle::after{
+    content:'';
+    width:6px; height:6px;
+    border-right:1.5px solid currentColor;
+    border-bottom:1.5px solid currentColor;
+    transform:rotate(45deg) translateY(-2px);
+    transition:transform .15s ease;
+  }
+  .examples-toggle[aria-expanded="true"]::after{ transform:rotate(225deg) translate(-1px, -1px); }
 
   .spinner-ring{
     width:14px; height:14px;
@@ -372,11 +393,17 @@
   .gsc-match.partial{ color:var(--cyan); }
 
   /* ---------------- Ví dụ mẫu ---------------- */
-  .examples{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:14px 0 18px; }
-  .examples-label{ font-size:0.84rem; color:var(--text-faint); margin-right:2px; }
+  .examples{
+    display:flex; flex-wrap:wrap; align-items:center; gap:7px;
+    margin:10px 0 16px; padding:10px 12px;
+    border:1px solid var(--line-soft); border-radius:12px;
+    background:rgba(255,255,255,0.015);
+  }
+  .examples[hidden]{ display:none; }
+  .examples-label{ font-size:0.76rem; color:var(--text-faint); margin-right:2px; }
   .chip{
-    font:inherit; font-size:0.84rem; cursor:pointer;
-    padding:5px 12px; border-radius:999px;
+    font:inherit; font-size:0.76rem; cursor:pointer;
+    padding:5px 10px; border-radius:999px;
     background:transparent; color:var(--text-dim, #8595a6);
     border:1px solid var(--line, #232d3a);
     transition:border-color .15s, color .15s;
@@ -865,9 +892,9 @@
       <path d="M0,110 C40,150 70,70 110,110 C150,150 180,70 220,110 C260,150 290,70 330,110 C350,130 370,130 400,110"
             fill="none" stroke-width="1.4" opacity="0.5"/>
     </svg>
-    <p class="hero-tag">Dự án Khoa học Kỹ thuật &nbsp;·&nbsp; chống <b>ảo giác AI</b> bằng đối chiếu báo chí</p>
-    <h1>Quét và đối chiếu nội dung AI với báo chí chính thống Việt Nam</h1>
-    <p class="lede">Dán một câu trả lời của AI vào bên dưới. Hệ thống đối chiếu trực tiếp với 8 cơ quan báo chí được cấp phép.</p>
+    <p class="hero-tag">Dự án Khoa học Kỹ thuật &nbsp;·&nbsp; kiểm chứng thông tin bằng đối chiếu báo chí</p>
+    <h1>Quét và đối chiếu thông tin với báo chí chính thống Việt Nam</h1>
+    <p class="lede">Nhập nội dung cần kiểm chứng. Hệ thống đối chiếu trực tiếp với 8 cơ quan báo chí được cấp phép.</p>
   </div>
 
   <div class="grid">
@@ -878,14 +905,17 @@
         <div class="console-bar">
           <span class="console-dot d1"></span><span class="console-dot d2"></span><span class="console-dot d3"></span>
           <span class="console-title"></span>
+          <button class="btn-secondary examples-toggle" type="button" id="toggleExamples" aria-expanded="false" aria-controls="exampleRow">
+            Xem ví dụ
+          </button>
         </div>
         <div class="console-body">
           <span class="console-prompt" aria-hidden="true">›</span>
           <textarea id="searchInput" aria-labelledby="inputPanelTitle" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off" placeholder="Nội dung"></textarea>
         </div>
       </div>
-      <div class="examples" id="exampleRow" role="group" aria-label="Ví dụ mẫu">
-        <span class="examples-label">Thử ví dụ:</span>
+      <div class="examples" id="exampleRow" role="group" aria-label="Ví dụ mẫu" hidden>
+        <span class="examples-label">Chọn một ví dụ:</span>
       </div>
 
       <div class="btn-row">
@@ -933,7 +963,7 @@
 
     <div id="semanticPanel">
       <h3 class="sem-head"><span class="dot" aria-hidden="true"></span>Đối chiếu ý nghĩa</h3>
-      <p class="sem-note">Phần này do bộ phân tích ngữ nghĩa (một mô hình ngôn ngữ) đọc tiêu đề và tóm tắt của các bài báo tìm được rồi so với câu cần kiểm chứng. Bộ phân tích không dùng kiến thức riêng mà chỉ dựa vào đoạn trích báo chí, và đoạn trích không phải toàn văn bài báo.</p>
+      <p class="sem-note">Phần này so sánh tiêu đề và tóm tắt của các bài báo tìm được với câu cần kiểm chứng. Kết quả chỉ dựa trên đoạn trích báo chí, không phải toàn văn bài báo.</p>
       <div id="semanticBody"></div>
     </div>
 
@@ -1550,14 +1580,14 @@
         'Có bài liên quan ở ' + partial.size + ' cơ quan báo chí nhưng chưa khớp đủ chi tiết. ' +
         (best && best.reason ? escapeHtml(best.reason) + ' ' : '') +
         (best ? 'Bài gần nhất: ' + escapeHtml(best.title) + ' (' + escapeHtml(best.source) + ', độ khớp ' + Math.round(best.score * 100) + '%). ' : '') +
-        'Đây là dấu hiệu cần kiểm tra kĩ số liệu, mốc thời gian và tên riêng trong nội dung AI đưa ra.</span>';
+        'Hãy kiểm tra kĩ số liệu, mốc thời gian và tên riêng trong nội dung này.</span>';
     } else {
       vb.className = 'verdict-banner show unverified';
       vb.innerHTML =
         '<span class="verdict-icon">⚠</span>' +
         '<span><strong>Nội dung chưa được xác thực</strong>' +
         'Không có bài nào trong 8 nguồn đối chiếu khớp đủ với nội dung này. ' +
-        'Đây có thể là thông tin sai lệch, bị AI "ảo giác", hoặc đơn giản là chưa được báo chí đưa tin — hãy thận trọng trước khi tin và chia sẻ.</span>';
+        'Thông tin này có thể sai lệch hoặc chưa được báo chí đưa tin — hãy thận trọng trước khi tin và chia sẻ.</span>';
     }
   }
 
@@ -1725,6 +1755,29 @@
   };
   function verdictMeta(v){ return VERDICT_META[v] || VERDICT_META.khong_du_thong_tin; }
 
+  async function fetchWithRetry(url, options, maxRetries){
+    if (typeof maxRetries !== 'number') maxRetries = 3;
+    var retryableStatuses = [429, 500, 502, 503, 504];
+    var lastError;
+
+    for (var attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        var response = await fetch(url, options);
+        if (retryableStatuses.indexOf(response.status) === -1 || attempt === maxRetries) {
+          return response;
+        }
+      } catch (err) {
+        lastError = err;
+        if (attempt === maxRetries) throw lastError;
+      }
+
+      var delay = Math.min(1000 * Math.pow(2, attempt), 8000) + Math.floor(Math.random() * 300);
+      await sleep(delay);
+    }
+
+    throw lastError || new Error('Không thể kết nối dịch vụ phân tích.');
+  }
+
   function buildSemanticPrompt(claim, items){
     var evidence = items.map(function(it, i){
       return '[' + i + '] Nguồn: ' + it.source + ' (' + it.domain + ')\n' +
@@ -1732,7 +1785,7 @@
              'Đoạn trích: ' + (it.snippet || '(không có đoạn trích)');
     }).join('\n\n');
 
-    return 'Bạn là công cụ đối chiếu thông tin. Dưới đây là một CÂU CẦN KIỂM CHỨNG (do một AI tạo ra) ' +
+    return 'Bạn là công cụ đối chiếu thông tin. Dưới đây là một CÂU CẦN KIỂM CHỨNG ' +
       'và các ĐOẠN TRÍCH từ kết quả tìm kiếm trên các báo điện tử chính thống Việt Nam.\n\n' +
       'Chỉ dựa vào các đoạn trích được cung cấp, KHÔNG dùng kiến thức riêng của bạn để khẳng định hay bác bỏ. ' +
       'Nếu đoạn trích quá ngắn hoặc không nói về cùng sự việc, hãy chọn "khong_du_thong_tin" hoặc "khong_lien_quan" thay vì đoán.\n\n' +
@@ -1773,11 +1826,11 @@
       } else {
         reqHeaders['x-goog-api-key'] = key;
       }
-      res = await fetch(reqUrl, {
+      res = await fetchWithRetry(reqUrl, {
         method: 'POST',
         headers: reqHeaders,
         body: JSON.stringify(body)
-      });
+      }, 3);
 
       if (res.ok) break;
 
@@ -1794,6 +1847,7 @@
       if (res.status === 400 || res.status === 403) throw new Error('Khóa API bị từ chối (' + res.status + '). ' + detail);
       if (res.status === 429) throw new Error('Đã vượt hạn ngạch Gemini trong lúc này (429). Hãy đợi một chút rồi thử lại.');
       if (res.status === 404) throw new Error('Không model nào trong danh sách còn khả dụng. ' + detail);
+      if (res.status === 503) throw new Error('Dịch vụ phân tích đang quá tải (503) sau nhiều lần thử. Vui lòng đợi một chút rồi thử lại. ' + detail);
       throw new Error('Gemini trả về lỗi ' + res.status + '. ' + detail);
     }
 
@@ -2102,6 +2156,13 @@
   (function initExamples(){
     var row = document.getElementById('exampleRow');
     if (!row) return;
+    var toggle = document.getElementById('toggleExamples');
+    toggle.addEventListener('click', function(){
+      var isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+      row.hidden = isExpanded;
+      toggle.setAttribute('aria-expanded', String(!isExpanded));
+      toggle.textContent = isExpanded ? 'Xem ví dụ' : 'Ẩn ví dụ';
+    });
     EXAMPLES.forEach(function(ex){
       var btn = document.createElement('button');
       btn.type = 'button';
