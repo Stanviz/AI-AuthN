@@ -88,6 +88,12 @@
   }
 
   .topbar-right{ display:flex; align-items:center; gap:22px; }
+  .api-key-btn{
+    min-height:38px;
+    padding:8px 14px;
+    border-radius:9px;
+    font-size:0.78rem;
+  }
 
   /* ---------------- Hero ---------------- */
   .hero{ position:relative; padding:6px 0 46px; margin-bottom:16px; }
@@ -826,6 +832,9 @@
       </div>
     </div>
     <div class="topbar-right">
+        <button class="btn-secondary api-key-btn" type="button" id="apiKeyBtn">
+          Nhập API key
+        </button>
       <p class="sys-status" id="sysStatus"><span id="sysStatusText">Chờ nhập nội dung</span></p>
     </div>
   </div>
@@ -958,12 +967,86 @@
   var MAX_CLAIMS = 8;
   var BATCH_DELAY_MS = 900;
   var SEARCH_TIMEOUT_MS = 15000;
-  // Paste your Gemini key here. A key in a public HTML file is visible to every visitor.
-  var GEMINI_API_KEY = 'AQ.Ab8RN6Kw4qDYey_sMP1dIdVaRc8Jm4xDmDzQwXQkiPW91cAJcg';
+  var GEMINI_STORAGE_KEY = 'ai_authn_gemini_api_key';
+  var GEMINI_API_KEY = '';
+  try {
+    GEMINI_API_KEY = localStorage.getItem(GEMINI_STORAGE_KEY) || '';
+  } catch (error) {
+    GEMINI_API_KEY = '';
+  }
   var GEMINI_MODELS = ['gemini-3.8-flash', 'gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-flash-latest'];
   var geminiModelIndex = 0;
   var GEMINI_TIMEOUT_MS = 20000;
   var geminiRequestId = 0;
+
+  function updateApiKeyButton(){
+    var button = document.getElementById('apiKeyBtn');
+    if (!button) return;
+    button.textContent = GEMINI_API_KEY ? 'API key: đã lưu' : 'Nhập API key';
+  }
+
+  function openApiKeyDialog(){
+    Swal.fire({
+      title:'API key',
+      text:'Nhập API key để bật đối chiếu ngữ nghĩa. Key được lưu trong trình duyệt hiện tại.',
+      input:'password',
+      inputValue:GEMINI_API_KEY,
+      inputPlaceholder:'AIza...',
+      inputAttributes:{
+        autocapitalize:'off',
+        autocorrect:'off',
+        autocomplete:'off'
+      },
+      showCancelButton:true,
+      showDenyButton:true,
+      confirmButtonText:'Lưu key',
+      denyButtonText:'Xóa key',
+      cancelButtonText:'Đóng',
+      confirmButtonColor:'#1F4B42',
+      denyButtonColor:'#8E2A2A',
+      preConfirm:function(value){
+        var trimmed = String(value || '').trim();
+        if (!trimmed) {
+          Swal.showValidationMessage('Vui lòng nhập API key.');
+        }
+        return trimmed;
+      }
+    }).then(function(result){
+      if (result.isConfirmed) {
+        GEMINI_API_KEY = result.value;
+        try {
+          localStorage.setItem(GEMINI_STORAGE_KEY, GEMINI_API_KEY);
+          updateApiKeyButton();
+          Swal.fire({
+            icon:'success',
+            title:'Đã lưu API key',
+            text:'Gemini sẽ được sử dụng cho lần đối chiếu tiếp theo.',
+            confirmButtonColor:'#1F4B42'
+          });
+        } catch (error) {
+          GEMINI_API_KEY = '';
+          Swal.fire({
+            icon:'error',
+            title:'Không thể lưu API key',
+            text:'Trình duyệt đang chặn localStorage.',
+            confirmButtonColor:'#1F4B42'
+          });
+        }
+      } else if (result.isDenied) {
+        GEMINI_API_KEY = '';
+        try { localStorage.removeItem(GEMINI_STORAGE_KEY); } catch (error) {}
+        updateApiKeyButton();
+        Swal.fire({
+          icon:'success',
+          title:'Đã xóa API key',
+          confirmButtonColor:'#1F4B42'
+        });
+      }
+    });
+  }
+
+  document.getElementById('apiKeyBtn').addEventListener('click', openApiKeyDialog);
+  updateApiKeyButton();
 
   /* ---------- Build radar SVG + legend from SOURCES ---------- */
   (function buildRadar(){
