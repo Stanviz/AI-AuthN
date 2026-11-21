@@ -12,25 +12,26 @@
 
 <style>
   :root{
-    --bg:#F3F0E8;
-    --panel:#FBF9F4;
-    --panel-2:#F7F4EE;
-    --line:#D4CDBF;
-    --line-soft:#E6E0D4;
-    --text:#1A1916;
-    --text-dim:#3C3933;
-    --text-faint:#5C564C;
-    --ink:#1A3C4E;
-    --accent:#1F4B42;
-    --amber:#7A4E0F;
-    --amber-dim:#F6EBD8;
-    --green:#1B6B45;
-    --green-dim:#E5F2EB;
-    --red:#8E2A2A;
-    --red-dim:#F8E8E6;
-    --red-rgb:142,42,42;
-    --cyan:#1A3C4E;
-    --paper:#F6F3EC;
+    /* Bảng màu mới: nền xanh xám nhạt + panel trắng + viền navy, đồng bộ màu poster */
+    --bg:#DCE6EC;
+    --panel:#FFFFFF;
+    --panel-2:#F2F6F9;
+    --line:#8FA3B3;
+    --line-soft:#C9D6DF;
+    --text:#0B1620;
+    --text-dim:#22313F;
+    --text-faint:#445768;
+    --ink:#0F2537;
+    --accent:#1F6E7A;
+    --amber:#8A4A0B;
+    --amber-dim:#FBEBD3;
+    --green:#0F7A4A;
+    --green-dim:#DDF3E8;
+    --red:#A02323;
+    --red-dim:#FBE4E1;
+    --red-rgb:160,35,35;
+    --cyan:#1F6E7A;
+    --paper:#FFFFFF;
   }
 
   *{ box-sizing:border-box; }
@@ -817,6 +818,34 @@
       transition-duration:0.01ms !important;
     }
   }
+
+  /* ======== Tăng tương phản & nổi bật (dùng cho poster) ======== */
+  body{ border-top:6px solid var(--ink); }
+  .panel{
+    border:1px solid var(--ink);
+    border-radius:4px;
+    box-shadow:none;
+  }
+  .panel-title{ color:var(--accent); font-weight:700; font-size:0.8rem; letter-spacing:0.09em; }
+  .console{ border:1.5px solid var(--ink); border-radius:4px; background:#FFFFFF; }
+  .console:focus-within{ border-color:var(--accent); box-shadow:0 0 0 3px rgba(31,110,122,0.22); }
+  .console-bar{ background:var(--ink); border-bottom:1.5px solid var(--ink); }
+  .console-title{ color:#FFFFFF; font-weight:600; font-size:0.8rem; }
+  .btn-secondary.examples-toggle{ color:#FFFFFF; border:1px solid rgba(255,255,255,0.6); background:rgba(255,255,255,0.08); }
+  .btn-secondary.examples-toggle:hover{ color:#FFFFFF; border-color:#FFFFFF; background:rgba(255,255,255,0.18); }
+  #searchInput{ color:var(--text); font-weight:500; }
+  #searchInput::placeholder{ color:var(--text-faint); opacity:1; }
+  .btn-verify{ background:#C85A17; color:#FFFFFF; box-shadow:none; }
+  .btn-verify:hover{ filter:brightness(1.08); }
+  .btn-secondary{ background:#FFFFFF; color:var(--ink); border:1.5px solid var(--ink); font-weight:700; }
+  .btn-secondary:hover{ color:var(--accent); border-color:var(--accent); }
+  .status-line, .match-count{ color:var(--text-dim); font-weight:500; }
+  .source-lead{ color:var(--text); }
+  .legend li{ border-bottom:1px solid var(--line) !important; color:var(--text); font-weight:600; }
+  .legend-logo{ background:#FFFFFF !important; box-shadow:0 0 0 1px var(--line) !important; }
+  .results-title{ color:var(--ink); }
+  .note-panel{ border:1px solid var(--ink); border-radius:4px; }
+  footer{ color:var(--text-dim); }
 </style>
 </head>
 <body>
@@ -1002,8 +1031,8 @@
       confirmButtonText:'Lưu key',
       denyButtonText:'Xóa key',
       cancelButtonText:'Đóng',
-      confirmButtonColor:'#1F4B42',
-      denyButtonColor:'#8E2A2A',
+      confirmButtonColor:'#C85A17',
+      denyButtonColor:'#A02323',
       preConfirm:function(value){
         var trimmed = String(value || '').trim();
         if (!trimmed) {
@@ -1021,7 +1050,7 @@
             icon:'success',
             title:'Đã lưu API key',
             text:'Gemini sẽ được sử dụng cho lần đối chiếu tiếp theo.',
-            confirmButtonColor:'#1F4B42'
+            confirmButtonColor:'#C85A17'
           });
         } catch (error) {
           GEMINI_API_KEY = '';
@@ -1029,7 +1058,7 @@
             icon:'error',
             title:'Không thể lưu API key',
             text:'Trình duyệt đang chặn localStorage.',
-            confirmButtonColor:'#1F4B42'
+            confirmButtonColor:'#C85A17'
           });
         }
       } else if (result.isDenied) {
@@ -1039,7 +1068,7 @@
         Swal.fire({
           icon:'success',
           title:'Đã xóa API key',
-          confirmButtonColor:'#1F4B42'
+          confirmButtonColor:'#C85A17'
         });
       }
     });
@@ -1868,7 +1897,7 @@
       Swal.fire({
         icon:'warning', title:'Thiếu nội dung',
         text:'Vui lòng dán nội dung cần kiểm chứng trước khi tiếp tục.',
-        background:'#FBF9F4', color:'#1A1916', confirmButtonColor:'#1F4B42'
+        background:'#FBF9F4', color:'#1A1916', confirmButtonColor:'#C85A17'
       });
       return;
     }
@@ -1953,7 +1982,7 @@
       Swal.fire({
         icon:'warning', title:'Thiếu nội dung',
         text:'Vui lòng dán nội dung cần kiểm chứng trước khi tiếp tục.',
-        background:'#FBF9F4', color:'#1A1916', confirmButtonColor:'#1F4B42'
+        background:'#FBF9F4', color:'#1A1916', confirmButtonColor:'#C85A17'
       });
       return;
     }
